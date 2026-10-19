@@ -1,0 +1,1153 @@
+<title>WebChat 綁定流程總覽</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+  :root {
+    --paper: #f5f6fb; --surface: #ffffff; --surface-2: #eef0f8; --ink: #1a1d2b;
+    --body: #3c4053; --muted: #6a6f88; --line: #e3e6f0; --line-strong: #c3c8d8;
+    --accent: #4a5bd4; --accent-ink: #3949bd; --accent-soft: #e9ecfb; --on-acc: #ffffff;
+    --ok: #0d9668; --ok-soft: #e2f4ec; --on-ok: #ffffff; --risk: #cd4638; --risk-soft: #fbecea;
+    --mono: "SF Mono", "JetBrains Mono", ui-monospace, "Menlo", "Consolas", monospace;
+    --cjk: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei", "Heiti TC", system-ui, sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --paper: #0e1018; --surface: #161927; --surface-2: #1d2130; --ink: #eef0f9;
+      --body: #b7bcd2; --muted: #8a91ab; --line: #282d40; --line-strong: #3d4460;
+      --accent: #8b97f2; --accent-ink: #a3adf6; --accent-soft: #1f2440; --on-acc: #0e1018;
+      --ok: #43c48d; --ok-soft: #133026; --on-ok: #08140f; --risk: #e8746a; --risk-soft: #2e1a1c;
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --paper: #0e1018; --surface: #161927; --surface-2: #1d2130; --ink: #eef0f9;
+    --body: #b7bcd2; --muted: #8a91ab; --line: #282d40; --line-strong: #3d4460;
+    --accent: #8b97f2; --accent-ink: #a3adf6; --accent-soft: #1f2440; --on-acc: #0e1018;
+    --ok: #43c48d; --ok-soft: #133026; --on-ok: #08140f; --risk: #e8746a; --risk-soft: #2e1a1c;
+      color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--body); font-family: var(--cjk); line-height: 1.75; -webkit-font-smoothing: antialiased; }
+  body { padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+  @media (min-width: 720px) { body { padding-left: max(40px, env(safe-area-inset-left, 0px)); padding-right: max(40px, env(safe-area-inset-right, 0px)); } }
+  .wrap { max-width: 1240px; margin: 0 auto; }
+
+  header.wrap { padding-block: 56px 24px; }
+  .eyebrow { font-size: .74rem; letter-spacing: .16em; color: var(--accent-ink); font-weight: 700; margin: 0 0 12px; }
+  h1 { font-size: clamp(1.7rem, 4vw, 2.4rem); line-height: 1.2; color: var(--ink); margin: 0 0 14px; font-weight: 800; text-wrap: balance; }
+  .lede { font-size: 1.05rem; max-width: 70ch; margin: 0; }
+  .chg { font-size: .9rem; color: var(--muted); max-width: 80ch; margin: 12px 0 0; }
+
+  main.wrap { padding-block: 0 90px; }
+  main > section { min-width: 0; }
+  main > section + section { margin-top: 56px; }
+  figure { margin: 0; background: var(--surface); border: 1px solid var(--line); border-radius: 14px; overflow: hidden; }
+  .scroll { overflow-x: auto; padding: 20px; }
+  figcaption { border-top: 1px solid var(--line); padding: 14px 20px 16px; font-size: .92rem; color: var(--body); }
+
+
+  /* 文字段落 */
+  .sec-hd { margin: 0 0 18px; }
+  h2 { display: flex; align-items: baseline; gap: 12px; font-size: 1.35rem; line-height: 1.3; color: var(--ink); margin: 0 0 8px; font-weight: 800; text-wrap: balance; }
+  h2 .num { font: 700 .8rem var(--mono); color: var(--accent-ink); letter-spacing: .08em; }
+  .sec-hd p { margin: 0; max-width: 72ch; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 14px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 16px 18px; }
+  .card h3 { margin: 0 0 6px; font-size: 1rem; line-height: 1.45; color: var(--ink); }
+  .card p { margin: 0; font-size: .93rem; }
+  .card ul { margin: 0; padding-left: 1.2em; font-size: .93rem; }
+  .card li + li { margin-top: 4px; }
+  .tbl { overflow-x: auto; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+  table { width: 100%; min-width: 680px; border-collapse: collapse; font-size: .93rem; }
+  th, td { text-align: left; vertical-align: top; padding: 11px 16px; border-bottom: 1px solid var(--line); }
+  th { background: var(--surface-2); color: var(--ink); font-weight: 700; white-space: nowrap; }
+  tr:last-child td { border-bottom: 0; }
+  td:first-child { color: var(--ink); font-weight: 600; white-space: nowrap; }
+  th.bad { color: var(--risk); }
+  th.good { color: var(--ok); }
+  .qa { display: grid; gap: 12px; margin: 16px 0 0; }
+  .qa > div { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px 18px; }
+  .qa dt { color: var(--ink); font-weight: 700; }
+  .qa dd { margin: 4px 0 0; font-size: .93rem; }
+  .list { margin: 0; padding: 16px 18px 16px 2.2em; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; font-size: .95rem; }
+  .list li + li { margin-top: 6px; }
+  .note { margin: 14px 0 0; padding: 12px 16px; border-left: 3px solid var(--accent); background: var(--accent-soft); border-radius: 0 10px 10px 0; font-size: .93rem; }
+  code { font-family: var(--mono); font-size: .86em; color: var(--ink); background: var(--surface-2); border-radius: 4px; padding: 1px 5px; }
+  strong { color: var(--ink); }
+
+  /* 圖內元素 */
+  .dia { display: block; width: 100%; min-width: 960px; height: auto; font-family: var(--cjk); }
+  .dia .box { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.5; }
+  .dia .frame { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
+  .dia .box-ok { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 1.5; }
+  .dia .box-okline { fill: var(--surface); stroke: var(--ok); stroke-width: 1.5; }
+  .dia .box-acc { fill: var(--accent-soft); stroke: var(--accent); stroke-width: 1.5; }
+  .dia .box-svc { fill: var(--surface); stroke: var(--accent); stroke-width: 1.5; }
+  .dia .svc-frame { fill: none; stroke: var(--accent); stroke-width: 1.5; }
+  .dia .tbl-hd { fill: var(--ok); }
+  .dia .tbl-hd2 { fill: var(--surface-2); }
+  .dia .tbl-hd-acc { fill: var(--accent); }
+  .dia .col-new { fill: var(--ok-soft); }
+  .dia .tbl-ln { stroke: var(--ok); stroke-width: 1; opacity: .45; }
+  .dia .grid { stroke: var(--line-strong); stroke-width: 1; }
+  .dia .sep { stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 2 6; }
+  .dia .t { fill: var(--ink); font-size: 15px; font-weight: 700; }
+  .dia .r { fill: var(--ink); font-size: 14px; font-weight: 600; }
+  .dia .s { fill: var(--muted); font-size: 12.5px; }
+  .dia .b { fill: var(--body); font-size: 13px; }
+  .dia .h { fill: var(--muted); font-size: 13px; font-weight: 700; letter-spacing: .04em; }
+  .dia .pk { fill: var(--ink); font-family: var(--mono); font-size: 16px; font-weight: 700; }
+  .dia .on-ok { fill: var(--on-ok); }
+  .dia .on-acc { fill: var(--on-acc); }
+  .dia .mono { font-family: var(--mono); }
+  .dia .lbl { font-size: 13px; font-weight: 700; paint-order: stroke; stroke: var(--surface); stroke-width: 6px; stroke-linejoin: round; }
+  .dia .halo { paint-order: stroke; stroke: var(--surface); stroke-width: 8px; stroke-linejoin: round; }
+  .dia .c-ok { fill: var(--ok); }
+  .dia .c-acc { fill: var(--accent-ink); }
+  .dia .c-mu { fill: var(--muted); }
+  .dia .c-risk { fill: var(--risk); }
+  .dia .ln { fill: none; stroke-width: 2; }
+  .dia .ln-ok { stroke: var(--ok); }
+  .dia .ln-acc { stroke: var(--accent); }
+  .dia .ln-mu { stroke: var(--muted); }
+  .dia .dash { stroke-dasharray: 6 5; }
+  .dia .ah-ok { fill: var(--ok); }
+  .dia .ah-acc { fill: var(--accent); }
+  .dia .ah-mu { fill: var(--muted); }
+  /* 時序圖 */
+  .dia .zone-br { fill: none; stroke: var(--risk); stroke-width: 1.5; stroke-dasharray: 7 5; }
+  .dia .zone-be { fill: none; stroke: var(--line-strong); stroke-width: 1.5; }
+  .dia .zt { font-size: 13px; font-weight: 700; }
+  .dia .life { stroke: var(--line-strong); stroke-width: 1.2; stroke-dasharray: 3 5; }
+  .dia .nb { fill: var(--surface-2); stroke: var(--line-strong); stroke-width: 1; }
+  .dia .nt { fill: var(--ink); font-size: 12.5px; font-weight: 600; }
+  .dia .ml { font-size: 12.5px; font-weight: 600; paint-order: stroke; stroke: var(--surface); stroke-width: 5px; stroke-linejoin: round; }
+
+  /* 資料流動畫 */
+  .btn { font: 600 .88rem/1.4 var(--cjk); color: var(--body); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 999px; padding: 7px 14px; cursor: pointer; }
+  .btn:hover:not(:disabled) { border-color: var(--accent); color: var(--accent-ink); }
+  .btn.primary, .btn[aria-pressed="true"], .btn.primary:hover:not(:disabled), .btn[aria-pressed="true"]:hover { background: var(--accent); border-color: var(--accent); color: var(--on-acc); }
+  .btn:disabled { opacity: .45; cursor: default; }
+  .btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+  .flow-bar { display: flex; flex-wrap: wrap; gap: 8px; padding: 16px 20px 4px; }
+  .flow-panel { display: grid; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); gap: 16px 28px; border-top: 1px solid var(--line); padding: 16px 20px 18px; }
+  @media (max-width: 860px) { .flow-panel { grid-template-columns: minmax(0, 1fr); } }
+  .flow-cap { min-height: 176px; }
+  .flow-step { margin: 0; font: 700 .76rem var(--mono); letter-spacing: .06em; color: var(--accent-ink); }
+  .flow-cap h3 { margin: 4px 0 6px; font-size: 1.1rem; line-height: 1.4; color: var(--ink); }
+  .flow-move { margin: 0 0 6px; font-size: .86rem; color: var(--muted); }
+  .flow-move .lg { margin: 0 0 0 6px; }
+  .flow-text { margin: 0; }
+  .flow-ctl { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 12px; }
+  .flow-ctl label { display: inline-flex; align-items: center; gap: 6px; font-size: .85rem; color: var(--muted); }
+  .flow-ctl select { font: inherit; color: var(--body); background: var(--surface); border: 1px solid var(--line-strong); border-radius: 8px; padding: 3px 6px; }
+  .next-sc { margin-top: 12px; }
+  .flow-steps { position: relative; list-style: none; margin: 0; padding: 0; counter-reset: s; font-size: .9rem; max-height: 330px; overflow-y: auto; }
+  .flow-steps li { counter-increment: s; }
+  .flow-steps button { display: flex; gap: 10px; width: 100%; text-align: left; font: inherit; color: var(--body); background: none; border: 0; border-radius: 8px; padding: 5px 10px; cursor: pointer; }
+  .flow-steps button::before { content: counter(s); min-width: 1.5em; font: 700 .76rem var(--mono); color: var(--muted); padding-top: .2em; }
+  .flow-steps button:hover { background: var(--surface-2); }
+  .flow-steps button:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+  .flow-steps button.done { color: var(--muted); }
+  .flow-steps button[aria-current="step"] { background: var(--accent-soft); color: var(--ink); font-weight: 700; }
+  .flow-steps button[aria-current="step"]::before { color: var(--accent-ink); }
+  .flow-legend { grid-column: 1 / -1; display: flex; flex-wrap: wrap; gap: 6px 18px; border-top: 1px dashed var(--line); padding-top: 12px; font-size: .84rem; color: var(--muted); }
+  .lg { display: inline-block; margin-right: 6px; padding: 0 9px; border: 1px solid transparent; border-radius: 999px; font: 700 .76rem/1.6 var(--cjk); }
+  .lg-code { background: var(--accent); color: var(--on-acc); }
+  .lg-hash { background: var(--ok); color: var(--on-ok); }
+  .lg-req { background: var(--surface); color: var(--accent-ink); border-color: var(--accent); }
+  .lg-cookie { background: var(--surface-2); color: var(--ink); border-color: var(--line-strong); }
+  .lg-cred { background: var(--ink); color: var(--surface); }
+  .lg-data { background: var(--ok-soft); color: var(--ok); border-color: var(--ok); }
+  .flow .wire { fill: none; stroke: var(--line-strong); stroke-width: 1.5; stroke-dasharray: 4 5; }
+  .flow .wire.on { stroke-dasharray: none; stroke-width: 3; }
+  .flow .wire.k-code { stroke: var(--accent); }
+  .flow .wire.k-hash { stroke: var(--ok); }
+  .flow .wire.k-other { stroke: var(--body); }
+  .flow .wl { fill: var(--muted); font-size: 11.5px; }
+  .flow .node { transition: opacity .3s; }
+  .flow .node.dim { opacity: .38; }
+  .flow .nr { fill: var(--surface); stroke: var(--line-strong); stroke-width: 1.5; }
+  .flow .nr-acc { fill: var(--accent-soft); stroke: var(--accent); }
+  .flow .nr-ok { fill: var(--ok-soft); stroke: var(--ok); }
+  .flow .node.hl .nr { stroke: var(--accent); stroke-width: 2.5; }
+  .flow .node.pulse .nr { animation: flowPulse .45s ease-in-out 4 alternate; }
+  @keyframes flowPulse { from { stroke-width: 2.5; } to { stroke-width: 7; } }
+  .flow .st { fill: var(--muted); font-size: 12.5px; }
+  .flow .st.chg { fill: var(--accent-ink); font-weight: 700; }
+  .flow .dv { fill: var(--ink); font-family: var(--mono); font-size: 15px; font-weight: 700; }
+  .flow .dv-empty { fill: var(--muted); font-size: 12.5px; }
+  .flow .dv.chg, .flow .okv { fill: var(--ok); }
+  .flow .row-hit { fill: var(--accent-soft); opacity: 0; transition: opacity .3s; }
+  .flow .row-hit.on { opacity: 1; }
+  .flow #pkt { transition: opacity .25s; }
+  .flow .chip text { font-size: 12.5px; font-weight: 700; }
+  .flow .c-code rect { fill: var(--accent); }
+  .flow .c-code text { fill: var(--on-acc); }
+  .flow .c-hash rect { fill: var(--ok); }
+  .flow .c-hash text { fill: var(--on-ok); }
+  .flow .c-req rect { fill: var(--surface); stroke: var(--accent); stroke-width: 1.5; }
+  .flow .c-req text { fill: var(--accent-ink); }
+  .flow .c-cookie rect { fill: var(--surface-2); stroke: var(--line-strong); stroke-width: 1.5; }
+  .flow .c-cookie text { fill: var(--ink); }
+  .flow .c-cred rect { fill: var(--ink); }
+  .flow .c-cred text { fill: var(--surface); }
+  .flow .c-data rect { fill: var(--ok-soft); stroke: var(--ok); stroke-width: 1.5; }
+  .flow .c-data text { fill: var(--ok); }
+  @media (prefers-reduced-motion: reduce) {
+    .flow .node.pulse .nr { animation: none; }
+    .flow #pkt, .flow .node { transition: none; }
+  }
+
+</style>
+<script>document.documentElement.lang = 'zh-Hant';</script>
+
+<header class="wrap">
+  <p class="eyebrow">流程總覽 · 2026-10-19</p>
+  <h1>WebChat 身分綁定流程總覽</h1>
+  <p class="lede">一張圖看完三件事：每次開 WebChat 怎麼確認身分、查資料；還沒綁的服務怎麼綁；什麼時候能建立統一 IdP。綁定表直接存各服務會員 PK 的 hash，以 hash 關聯各服務會員表；瀏覽器只經手一次性 code，token 和 hash 都只在後端之間經 Token Exchange 服務傳遞。</p>
+  <p class="chg">與 10/16 版的差異：會員表不新增 <code>idp_id</code>，改為新增自家 PK 的 <code>H(PK)</code> 欄位，以 hash 關聯；開場與補綁都經 Token Exchange 服務，用一次性 code 交接；補綁改用彈出視窗（<code>window.open</code>）開該服務自己網域的授權頁。</p>
+</header>
+
+<main class="wrap">
+  <section id="f0">
+    <figure>
+      <div class="scroll">
+        <svg class="dia" viewBox="0 0 1200 966" role="img" aria-label="WebChat 身分綁定流程總覽。每次開 WebChat：一、使用者已登入任一平台，開啟 WebChat；二、平台後端確認登入後，以 S2S 把會員 hash I1 寄放到 Token Exchange 服務，換一次性 code；三、瀏覽器只轉交 code，WebChat 後端以 S2S 向 Token Exchange 服務兌換得到 I1；四、用 I1 查 IdP 綁定表，找出這個人那一列 P1，查無就新建一列。需要的服務已綁，就到九、以 S2S 帶該服務的 H(PK) 呼叫該服務 API，該服務用會員表新增的 H(PK) 欄找回會員。未綁時：五、使用者在 WebChat 按用智生活授權，widget 用 window.open 開彈出視窗到智生活網域，帶 challenge，不嵌入登入表單；六、使用者在智生活自己的授權頁登入並同意，智生活取得自家 hash S1；七、智生活以 S2S 把 S1 與 challenge 寄放到 Token Exchange 服務換 code，經 postMessage 把 code 交回 widget；八、WebChat 後端帶 verifier 以 S2S 向 Token Exchange 服務換回 S1，寫入 P1 那一列，S1 已在別列就拒絕，之後到第九步。Token Exchange 服務只收 S2S 呼叫，寄放 hash 換一次性 code，兌換時交回 hash 並立即刪除，code 120 秒失效。綁定表一列一人，存 IdP ID 和各服務 PK 的 hash；各服務會員表新增 H(PK) 欄位並建索引，以 hash 對應綁定表。長期：所有會員系統都關聯過才建立統一 IdP，還沒就持續漸進綁定。">
+          <defs>
+            <marker id="o-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+            <marker id="o-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-ok" d="M0,0 L10,5 L0,10 z"/></marker>
+            <marker id="o-mu" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-mu" d="M0,0 L10,5 L0,10 z"/></marker>
+          </defs>
+
+          <!-- 標題與圖例 -->
+          <text class="h" x="24" y="36">每次開 WebChat</text>
+          <line class="ln ln-acc" x1="700" y1="31" x2="728" y2="31"/>
+          <text class="s" x="736" y="36">每次都走（查資料）</text>
+          <line class="ln ln-ok" x1="868" y1="31" x2="896" y2="31"/>
+          <text class="s" x="904" y="36">未綁時才走（綁定）</text>
+          <line class="ln ln-mu dash" x1="1036" y1="31" x2="1064" y2="31"/>
+          <text class="s" x="1072" y="36">讀取／長期推進</text>
+
+          <!-- 每次開 WebChat（藍） -->
+          <rect class="box" x="24" y="64" width="142" height="88" rx="10"/>
+          <text class="t" x="95" y="94" text-anchor="middle">① 開 WebChat</text>
+          <text class="s" x="95" y="117" text-anchor="middle">已登入任一平台</text>
+          <text class="s" x="95" y="136" text-anchor="middle">例：行動客服</text>
+
+          <rect class="box" x="194" y="64" width="180" height="88" rx="10"/>
+          <text class="t" x="284" y="94" text-anchor="middle">② 平台寄放 hash</text>
+          <text class="s" x="284" y="117" text-anchor="middle">平台後端確認登入後</text>
+          <text class="s" x="284" y="136" text-anchor="middle">S2S 寄放 <tspan class="mono">I1</tspan>，換 code</text>
+
+          <rect class="box" x="402" y="64" width="180" height="88" rx="10"/>
+          <text class="t" x="492" y="94" text-anchor="middle">③ WebChat 換回 hash</text>
+          <text class="s" x="492" y="117" text-anchor="middle">瀏覽器只轉交 code</text>
+          <text class="s" x="492" y="136" text-anchor="middle">後端 S2S 兌換得 <tspan class="mono">I1</tspan></text>
+
+          <rect class="box" x="610" y="64" width="160" height="88" rx="10"/>
+          <text class="t" x="690" y="94" text-anchor="middle">④ 用 <tspan class="mono">I1</tspan> 查綁定表</text>
+          <text class="s" x="690" y="117" text-anchor="middle">找出這個人那一列 <tspan class="mono">P1</tspan></text>
+          <text class="s" x="690" y="136" text-anchor="middle">查無就新建一列</text>
+
+          <polygon class="box" points="872,50 946,108 872,166 798,108"/>
+          <text class="t" x="872" y="104" text-anchor="middle">需要的服務</text>
+          <text class="t" x="872" y="125" text-anchor="middle">綁了嗎？</text>
+
+          <rect class="box-acc" x="994" y="64" width="182" height="88" rx="10"/>
+          <text class="t" x="1085" y="94" text-anchor="middle">⑨ 存取服務資料</text>
+          <text class="s" x="1085" y="117" text-anchor="middle">S2S 帶該服務 H(PK)</text>
+          <text class="s" x="1085" y="136" text-anchor="middle">呼叫該服務 API</text>
+
+          <line class="ln ln-acc" x1="166" y1="108" x2="192" y2="108" marker-end="url(#o-acc)"/>
+          <line class="ln ln-acc" x1="374" y1="108" x2="400" y2="108" marker-end="url(#o-acc)"/>
+          <line class="ln ln-acc" x1="582" y1="108" x2="608" y2="108" marker-end="url(#o-acc)"/>
+          <line class="ln ln-acc" x1="770" y1="108" x2="796" y2="108" marker-end="url(#o-acc)"/>
+          <line class="ln ln-acc" x1="946" y1="108" x2="992" y2="108" marker-end="url(#o-acc)"/>
+          <text class="lbl c-acc" x="969" y="98" text-anchor="middle">已綁</text>
+
+          <!-- 未綁時：補綁（綠） -->
+          <line class="ln ln-ok" x1="872" y1="166" x2="872" y2="198" marker-end="url(#o-ok)"/>
+          <text class="lbl c-ok" x="884" y="188">未綁</text>
+
+          <rect class="box-okline" x="732" y="200" width="280" height="86" rx="10"/>
+          <text class="t" x="872" y="231" text-anchor="middle">⑤ 開彈出視窗到該服務網域</text>
+          <text class="s" x="872" y="255" text-anchor="middle">使用者在 WebChat 按「用智生活授權」</text>
+          <text class="s" x="872" y="274" text-anchor="middle">window.open 帶 challenge，不嵌入表單</text>
+          <line class="ln ln-ok" x1="872" y1="286" x2="872" y2="310" marker-end="url(#o-ok)"/>
+
+          <rect class="box-okline" x="732" y="312" width="280" height="86" rx="10"/>
+          <text class="t" x="872" y="343" text-anchor="middle">⑥ 在該服務登入並同意</text>
+          <text class="s" x="872" y="367" text-anchor="middle">授權頁在智生活自己的網域</text>
+          <text class="s" x="872" y="386" text-anchor="middle">驗帳密後取得自家 hash <tspan class="mono">S1</tspan></text>
+          <line class="ln ln-ok" x1="872" y1="398" x2="872" y2="422" marker-end="url(#o-ok)"/>
+
+          <rect class="box-okline" x="732" y="424" width="280" height="86" rx="10"/>
+          <text class="t" x="872" y="455" text-anchor="middle">⑦ 該服務寄放 hash，發 code</text>
+          <text class="s" x="872" y="479" text-anchor="middle">S2S 寄放 <tspan class="mono">S1</tspan>＋challenge</text>
+          <text class="s" x="872" y="498" text-anchor="middle">經 postMessage 把 code 交回 widget</text>
+          <line class="ln ln-ok" x1="872" y1="510" x2="872" y2="534" marker-end="url(#o-ok)"/>
+
+          <rect class="box-okline" x="732" y="536" width="280" height="86" rx="10"/>
+          <text class="t" x="872" y="567" text-anchor="middle">⑧ WebChat 兌換並寫入</text>
+          <text class="s" x="872" y="591" text-anchor="middle">後端帶 verifier，S2S 換回 <tspan class="mono">S1</tspan></text>
+          <text class="s" x="872" y="610" text-anchor="middle">寫入 <tspan class="mono">P1</tspan> 那一列；<tspan class="mono">S1</tspan> 已在別列就拒絕</text>
+
+          <polyline class="ln ln-ok" points="1012,579 1085,579 1085,154" marker-end="url(#o-ok)"/>
+          <text class="lbl c-ok" x="1048" y="569" text-anchor="middle">綁好後</text>
+
+          <!-- 呼叫 Token Exchange 服務 -->
+          <polyline class="ln ln-acc" points="300,152 300,552 378,552" marker-end="url(#o-acc)"/>
+          <text class="lbl c-acc" x="290" y="360" text-anchor="end">② 寄放 <tspan class="mono">I1</tspan></text>
+          <polyline class="ln ln-acc" points="420,152 420,176 362,176 362,512 378,512" marker-end="url(#o-acc)"/>
+          <text class="lbl c-acc" x="352" y="330" text-anchor="end">③ 兌換</text>
+          <line class="ln ln-ok" x1="732" y1="500" x2="702" y2="500" marker-end="url(#o-ok)"/>
+          <line class="ln ln-ok" x1="732" y1="558" x2="702" y2="558" marker-end="url(#o-ok)"/>
+
+          <!-- 讀取線 -->
+          <line class="ln ln-mu dash" x1="650" y1="152" x2="650" y2="198" marker-end="url(#o-mu)"/>
+          <text class="lbl c-mu" x="660" y="182">查詢</text>
+          <polyline class="ln ln-mu dash" points="1150,152 1150,723 702,723" marker-end="url(#o-mu)"/>
+          <text class="lbl c-mu" x="926" y="715" text-anchor="middle">⑨ 該服務以 <tspan class="mono">H(PK)</tspan> 找回會員</text>
+
+          <!-- IdP 綁定表 -->
+          <rect class="box-ok" x="380" y="200" width="320" height="228" rx="12"/>
+          <path class="tbl-hd" d="M380,212 a12,12 0 0 1 12,-12 h296 a12,12 0 0 1 12,12 v40 h-320 z"/>
+          <text class="t on-ok" x="400" y="222">IdP 綁定表（正本）</text>
+          <text class="s on-ok" x="400" y="242" style="font-size:12px">一列一人：IdP ID＋各服務 H(自家 PK)</text>
+          <line class="tbl-ln" x1="380" y1="296" x2="700" y2="296"/>
+          <line class="tbl-ln" x1="380" y1="340" x2="700" y2="340"/>
+          <line class="tbl-ln" x1="380" y1="384" x2="700" y2="384"/>
+          <line class="tbl-ln" x1="500" y1="252" x2="500" y2="428"/>
+          <text class="r" x="400" y="279">IdP ID</text>
+          <text class="pk" x="520" y="280">P1</text>
+          <text class="s" x="688" y="279" text-anchor="end">只在 WebChat 後端使用</text>
+          <text class="r" x="400" y="323">行動客服</text>
+          <text class="pk" x="520" y="324">I1</text>
+          <text class="lbl c-ok" x="688" y="323" text-anchor="end" style="stroke: var(--ok-soft)">已綁</text>
+          <text class="r" x="400" y="367">智生活</text>
+          <text class="pk" x="520" y="368">S1</text>
+          <text class="lbl c-ok" x="688" y="367" text-anchor="end" style="stroke: var(--ok-soft)">⑧ 寫入</text>
+          <text class="r" x="400" y="411">管理版</text>
+          <text class="s" x="520" y="411" style="font-size:14px">（未綁）</text>
+
+          <!-- Token Exchange 服務 -->
+          <rect class="box-svc" x="380" y="456" width="320" height="124" rx="12"/>
+          <path class="tbl-hd-acc" d="M380,468 a12,12 0 0 1 12,-12 h296 a12,12 0 0 1 12,12 v28 h-320 z"/>
+          <text class="t on-acc" x="400" y="482">Token Exchange 服務</text>
+          <text class="s on-acc" x="688" y="481" text-anchor="end" style="font-size:12px">只收 S2S（API Key）</text>
+          <text class="b" x="400" y="521">寄放：hash（＋challenge）→ 一次性 code</text>
+          <text class="b" x="400" y="544">兌換：code → hash，用一次即刪</text>
+          <text class="b" x="400" y="567">code 120 秒失效，本身不帶任何資訊</text>
+          <rect class="svc-frame" x="380" y="456" width="320" height="124" rx="12"/>
+
+          <!-- 各服務會員表 -->
+          <rect class="box" x="380" y="608" width="320" height="166" rx="12"/>
+          <path class="tbl-hd2" d="M380,620 a12,12 0 0 1 12,-12 h296 a12,12 0 0 1 12,12 v24 h-320 z"/>
+          <path class="col-new" d="M590,644 h110 v118 a12,12 0 0 1 -12,12 h-98 z"/>
+          <text class="t" x="400" y="632" style="font-size:14px">各服務會員表（新增 H(PK) 欄並建索引）</text>
+          <line class="grid" x1="380" y1="644" x2="700" y2="644"/>
+          <line class="grid" x1="380" y1="672" x2="700" y2="672"/>
+          <line class="grid" x1="380" y1="706" x2="700" y2="706" style="opacity:.6"/>
+          <line class="grid" x1="380" y1="740" x2="700" y2="740" style="opacity:.6"/>
+          <line class="grid" x1="480" y1="644" x2="480" y2="774" style="opacity:.6"/>
+          <line class="grid" x1="590" y1="644" x2="590" y2="774" style="opacity:.6"/>
+          <text class="s" x="400" y="663">服務</text>
+          <text class="s" x="496" y="663">自家 PK</text>
+          <text class="s c-ok" x="606" y="663" style="font-weight:700"><tspan class="mono">H(PK)</tspan> 新增</text>
+          <text class="r" x="400" y="694">行動客服</text>
+          <text class="pk" x="496" y="695" style="font-size:15px">10023</text>
+          <text class="pk c-ok" x="606" y="695" style="font-size:15px">I1</text>
+          <text class="r" x="400" y="728">智生活</text>
+          <text class="pk" x="496" y="729" style="font-size:15px">A-7781</text>
+          <text class="pk c-ok" x="606" y="729" style="font-size:15px">S1</text>
+          <text class="r" x="400" y="762">管理版</text>
+          <text class="pk" x="496" y="763" style="font-size:15px">m-552</text>
+          <text class="pk c-ok" x="606" y="763" style="font-size:15px">M1</text>
+          <rect class="frame" x="380" y="608" width="320" height="166" rx="12"/>
+
+          <!-- 長期 -->
+          <line class="sep" x1="24" y1="806" x2="1176" y2="806"/>
+
+          <line class="ln ln-mu dash" x1="540" y1="774" x2="540" y2="840" marker-end="url(#o-mu)"/>
+          <text class="lbl c-mu" x="552" y="828">各服務 hash 逐步補齊</text>
+
+          <polygon class="box" points="540,842 650,894 540,946 430,894"/>
+          <text class="t" x="540" y="890" text-anchor="middle">所有會員系統</text>
+          <text class="t" x="540" y="911" text-anchor="middle">都關聯過了嗎？</text>
+
+          <line class="ln ln-ok" x1="650" y1="894" x2="708" y2="894" marker-end="url(#o-ok)"/>
+          <text class="lbl c-ok" x="679" y="884" text-anchor="middle">是</text>
+          <rect class="box-ok" x="710" y="858" width="260" height="72" rx="10" style="stroke-width:2"/>
+          <text class="t" x="840" y="888" text-anchor="middle">建立統一 IdP</text>
+          <text class="s" x="840" y="911" text-anchor="middle"><tspan class="mono">P1</tspan> 成為跨服務的統一身分</text>
+
+          <line class="ln ln-mu" x1="430" y1="894" x2="206" y2="894" marker-end="url(#o-mu)"/>
+          <text class="lbl c-mu" x="318" y="884" text-anchor="middle">還沒</text>
+          <rect class="box" x="24" y="858" width="180" height="72" rx="10"/>
+          <text class="t" x="114" y="888" text-anchor="middle">持續漸進綁定</text>
+          <text class="s" x="114" y="911" text-anchor="middle">下次用 WebChat 再補</text>
+
+          <line class="ln ln-mu dash" x1="95" y1="858" x2="95" y2="154" marker-end="url(#o-mu)"/>
+          <text class="lbl c-mu" x="105" y="480">回到 ①</text>
+
+          <text class="h halo" x="24" y="832">長期：何時建立統一 IdP</text>
+        </svg>
+      </div>
+      <figcaption>藍線是每次開 WebChat 都會走的路：平台後端確認登入後，把會員 hash（<code>I1</code>）寄放到 Token Exchange 服務，換一張一次性 code；瀏覽器只轉交 code，WebChat 後端再以 S2S 向 Token Exchange 換回 <code>I1</code>，查綁定表找到這個人那一列（<code>P1</code>），拿需要的服務 hash 去存取資料。綠線只在服務還沒綁時走一次：widget 用彈出視窗開該服務自己網域的授權頁，使用者登入後，由該服務把自家 hash（<code>S1</code>）寄放到 Token Exchange，WebChat 後端兌換後寫進 <code>P1</code> 那一列。開場和補綁共用同一個 Token Exchange 服務；綁定表直接存各服務 PK 的 hash；各服務會員表不加 IdP 欄位，只新增一個 <code>H(PK)</code> 欄並建索引，⑨ 該服務收到 S2S 請求時，就用這個欄位找回是哪個會員；<code>P1</code> 只在 WebChat 後端使用，不經過瀏覽器。</figcaption>
+    </figure>
+  </section>
+
+  <section id="anim">
+    <div class="sec-hd">
+      <h2><span class="num">01</span>資料流動畫</h2>
+      <p>點一個流程，看資料怎麼在瀏覽器和後端之間移動。藍色標籤是一次性 code 或 challenge，可以經過瀏覽器；綠色標籤是 hash，只在後端之間移動。</p>
+    </div>
+    <figure class="flow-fig">
+      <div class="flow-bar" role="group" aria-label="選擇流程">
+        <button type="button" class="btn sc-btn" data-sc="login" aria-pressed="false">1 登入平台</button>
+        <button type="button" class="btn sc-btn" data-sc="open" aria-pressed="false">2 開啟 WebChat</button>
+        <button type="button" class="btn sc-btn" data-sc="bind" aria-pressed="false">3 WebChat 觸發登入其他平台</button>
+        <button type="button" class="btn sc-btn" data-sc="query" aria-pressed="false">4 查資料</button>
+      </div>
+      <div class="scroll">
+        <svg class="dia flow" id="flow" viewBox="0 0 1200 744" role="img" aria-label="資料流動畫。左邊是使用者的瀏覽器，有宿主頁、WebChat widget、彈出視窗；右邊是後端，有行動客服後端、智生活後端與智生活會員表、WebChat 後端、Token Exchange、IdP 綁定表。選擇流程後，資料以標籤的形式在元件之間移動，圖下方的文字說明每一步。">
+          <!-- 兩個區域 -->
+          <rect class="zone-br" x="16" y="16" width="336" height="712" rx="14"/>
+          <text class="zt c-risk" x="32" y="42">使用者的瀏覽器（外網）</text>
+          <rect class="zone-be" x="372" y="16" width="812" height="712" rx="14"/>
+          <text class="zt c-mu" x="388" y="42">後端（內網・S2S）：hash 只在這裡移動</text>
+
+          <!-- 連線 -->
+          <path id="w-H-A" class="wire" d="M328,134 H436"/>
+          <path id="w-H-G" class="wire" d="M184,172 V300"/>
+          <path id="w-G-P" class="wire" d="M184,376 V504"/>
+          <path id="w-G-W" class="wire" d="M328,338 H660"/>
+          <path id="w-P-B" class="wire" d="M328,542 H436"/>
+          <path id="w-A-T" class="wire" d="M626,124 H1078 V300"/>
+          <path id="w-W-T" class="wire" d="M870,338 H986"/>
+          <path id="w-B-T" class="wire" d="M626,560 H1078 V376"/>
+          <path id="w-W-B" class="wire" d="M660,356 H560 V504"/>
+          <path id="w-W-D" class="wire" d="M820,376 V412"/>
+          <path id="w-B-M" class="wire" d="M531,580 V616"/>
+          <text class="wl" x="194" y="240">postMessage</text>
+          <text class="wl" x="194" y="444">window.open・postMessage</text>
+          <text class="wl" x="494" y="330" text-anchor="middle">HTTPS</text>
+          <text class="wl" x="850" y="116" text-anchor="middle">S2S（API Key）</text>
+          <text class="wl" x="850" y="578" text-anchor="middle">S2S（API Key）</text>
+          <text class="wl" x="570" y="440">S2S（API Key）</text>
+          <text class="wl" x="928" y="330" text-anchor="middle">S2S</text>
+
+          <!-- 瀏覽器 -->
+          <g class="node" id="n-H">
+            <rect class="nr" x="40" y="96" width="288" height="76" rx="10"/>
+            <text class="t" x="184" y="126" text-anchor="middle" style="font-size:14px">宿主頁（行動客服網站）</text>
+            <text class="st" id="s-H" x="184" y="152" text-anchor="middle">未登入</text>
+          </g>
+          <g class="node" id="n-G">
+            <rect class="nr" x="40" y="300" width="288" height="76" rx="10"/>
+            <text class="t" x="184" y="330" text-anchor="middle" style="font-size:14px">WebChat widget（iframe）</text>
+            <text class="st" id="s-G" x="184" y="356" text-anchor="middle">未開啟</text>
+          </g>
+          <g class="node dim" id="n-P">
+            <rect class="nr" x="40" y="504" width="288" height="76" rx="10"/>
+            <text class="t" x="184" y="534" text-anchor="middle" style="font-size:14px">彈出視窗（智生活網域）</text>
+            <text class="st" id="s-P" x="184" y="560" text-anchor="middle">未開啟</text>
+          </g>
+
+          <!-- 後端 -->
+          <g class="node" id="n-A">
+            <rect class="nr" x="436" y="96" width="190" height="76" rx="10"/>
+            <text class="t" x="531" y="126" text-anchor="middle" style="font-size:14px">行動客服後端</text>
+            <text class="st" id="s-A" x="531" y="152" text-anchor="middle">—</text>
+          </g>
+          <g class="node" id="n-B">
+            <rect class="nr" x="436" y="504" width="190" height="76" rx="10"/>
+            <text class="t" x="531" y="534" text-anchor="middle" style="font-size:14px">智生活後端</text>
+            <text class="st" id="s-B" x="531" y="560" text-anchor="middle">—</text>
+          </g>
+          <g class="node" id="n-M">
+            <rect class="nr" x="436" y="616" width="190" height="88" rx="10"/>
+            <path class="tbl-hd2" d="M436,626 a10,10 0 0 1 10,-10 h170 a10,10 0 0 1 10,10 v16 h-190 z"/>
+            <path class="col-new" d="M531,642 h94 v52 a9,9 0 0 1 -9,9 h-85 z"/>
+            <rect class="row-hit" id="m-hit" x="437" y="666" width="188" height="37"/>
+            <text class="t" x="450" y="634" style="font-size:12.5px">智生活會員表</text>
+            <line class="grid" x1="436" y1="642" x2="626" y2="642"/>
+            <line class="grid" x1="436" y1="666" x2="626" y2="666" style="opacity:.6"/>
+            <line class="grid" x1="531" y1="642" x2="531" y2="704" style="opacity:.6"/>
+            <text class="s" x="450" y="659">PK</text>
+            <text class="s c-ok" x="545" y="659" style="font-weight:700"><tspan class="mono">H(PK)</tspan> 新增</text>
+            <text class="dv" x="450" y="690" style="font-size:14px">A-7781</text>
+            <text class="dv okv" x="545" y="690">S1</text>
+          </g>
+          <g class="node" id="n-W">
+            <rect class="nr" x="660" y="300" width="210" height="76" rx="10"/>
+            <text class="t" x="765" y="330" text-anchor="middle" style="font-size:14px">WebChat 後端</text>
+            <text class="st" id="s-W" x="765" y="356" text-anchor="middle">session：—</text>
+          </g>
+          <g class="node" id="n-T">
+            <rect class="nr nr-acc" x="986" y="300" width="184" height="76" rx="10"/>
+            <text class="t" x="1078" y="330" text-anchor="middle" style="font-size:14px">Token Exchange</text>
+            <text class="st" id="s-T" x="1078" y="356" text-anchor="middle">暫存：無</text>
+          </g>
+          <g class="node" id="n-D">
+            <rect class="nr nr-ok" x="712" y="412" width="328" height="96" rx="10"/>
+            <path class="tbl-hd" d="M712,422 a10,10 0 0 1 10,-10 h308 a10,10 0 0 1 10,10 v18 h-328 z"/>
+            <text class="t on-ok" x="728" y="431" style="font-size:13px">IdP 綁定表</text>
+            <line class="grid" x1="712" y1="466" x2="1040" y2="466"/>
+            <line class="grid" x1="800" y1="440" x2="800" y2="508" style="opacity:.6"/>
+            <line class="grid" x1="880" y1="440" x2="880" y2="508" style="opacity:.6"/>
+            <line class="grid" x1="960" y1="440" x2="960" y2="508" style="opacity:.6"/>
+            <text class="s" x="726" y="458">IdP ID</text>
+            <text class="s" x="814" y="458">行動客服</text>
+            <text class="s" x="894" y="458">智生活</text>
+            <text class="s" x="974" y="458">管理版</text>
+            <text class="dv-empty" id="d-p" x="726" y="493">—</text>
+            <text class="dv-empty" id="d-i" x="814" y="493">—</text>
+            <text class="dv-empty" id="d-s" x="894" y="493">（未綁）</text>
+            <text class="dv-empty" id="d-m" x="974" y="493">（未綁）</text>
+          </g>
+
+          <g id="pkt" style="opacity:0"></g>
+        </svg>
+      </div>
+      <div class="flow-panel">
+        <div>
+          <div class="flow-cap" aria-live="polite">
+            <p class="flow-step" id="fStep"></p>
+            <h3 id="fTitle"></h3>
+            <p class="flow-move" id="fMove"></p>
+            <p class="flow-text" id="fText"></p>
+          </div>
+          <div class="flow-ctl">
+            <button type="button" class="btn" id="fPrev">上一步</button>
+            <button type="button" class="btn primary" id="fPlay">播放</button>
+            <button type="button" class="btn" id="fNext">下一步</button>
+            <button type="button" class="btn" id="fReplay">重播</button>
+            <label>速度
+              <select id="fSpeed">
+                <option value="1.6">慢</option>
+                <option value="1" selected>正常</option>
+                <option value="0.6">快</option>
+              </select>
+            </label>
+          </div>
+          <button type="button" class="btn next-sc" id="fNextSc" hidden></button>
+        </div>
+        <ol class="flow-steps" id="fList" aria-label="這個流程的步驟"></ol>
+        <div class="flow-legend">
+          <span><span class="lg lg-code">code</span>一次性 code／challenge，可經過瀏覽器</span>
+          <span><span class="lg lg-hash">I1</span>hash，只在後端移動</span>
+          <span><span class="lg lg-req">請求</span>一般請求</span>
+          <span><span class="lg lg-cookie">cookie</span>登入狀態</span>
+          <span><span class="lg lg-cred">帳密</span>只輸入在該服務自己的網域</span>
+          <span><span class="lg lg-data">資料</span>查詢結果</span>
+        </div>
+      </div>
+    </figure>
+  </section>
+
+  <section id="rules">
+    <div class="sec-hd">
+      <h2><span class="num">02</span>四個原則</h2>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <h3>瀏覽器只經手一次性 code</h3>
+        <p>平台 token 不離開平台，會員 hash 只在後端之間經 Token Exchange 服務以 S2S 傳遞。瀏覽器經手的只有 code（120 秒、用一次就失效）、challenge，以及 WebChat 的 HttpOnly session cookie。</p>
+      </div>
+      <div class="card">
+        <h3>登入一律在該服務自己的網域</h3>
+        <p>補綁時由 widget 用彈出視窗（<code>window.open</code>）開該服務自己的授權頁，不把登入表單包成元件嵌進平台頁面。登入後也不把 token 存在瀏覽器。</p>
+      </div>
+      <div class="card">
+        <h3>綁定表用 hash 關聯</h3>
+        <p>綁定表一列代表一個人，存各服務用自家 PK 算出的 hash。各服務會員表不寫入 <code>P1</code>，只新增一個 <code>H(PK)</code> 欄位並建索引：S2S 查資料時只帶 hash，服務靠這個欄位才知道是哪個會員。每個服務的 hash 在綁定表只能出現在一列。</p>
+      </div>
+      <div class="card">
+        <h3><code>P1</code> 不離開 WebChat 後端</h3>
+        <p>WebChat 從自己的 session 就知道要綁進哪一列。該服務只回報「登入的是 <code>S1</code>」，不需要知道要綁給誰，流程裡也就沒有能竄改綁定對象的參數。</p>
+      </div>
+    </div>
+  </section>
+
+  <section id="f1">
+    <div class="sec-hd">
+      <h2><span class="num">03</span>誰經手什麼</h2>
+      <p>把總覽圖的步驟攤開成時序，看每一段經過瀏覽器還是後端。</p>
+    </div>
+    <figure>
+      <div class="scroll">
+        <svg class="dia" viewBox="0 0 1200 1100" role="img" aria-label="時序圖，分成瀏覽器與後端兩區。瀏覽器區有宿主頁、WebChat widget、彈出視窗；後端區有行動客服後端、智生活後端、Token Exchange 服務、WebChat 後端。開 WebChat：宿主頁向行動客服後端要求開場 code；行動客服後端以 API Key 把 I1 寄放到 Token Exchange，取得 code 後交回宿主頁；宿主頁以 postMessage 把 code 交給 widget；widget 把 code 送到 WebChat 後端；WebChat 後端以 API Key 向 Token Exchange 兌換，取得 I1，Token Exchange 兌換即刪；WebChat 後端查綁定表得到 P1，記在 session，回給 widget HttpOnly session cookie。補綁智生活：widget 通知 WebChat 後端開始綁定；WebChat 後端產生 verifier，與 P1 一起存在 session，回給 widget challenge；widget 開彈出視窗並帶 challenge；使用者在彈出視窗登入智生活並同意；智生活後端把 S1 和 challenge 寄放到 Token Exchange，取得 code 後交回彈出視窗；彈出視窗以 postMessage 把 code 交給 widget；widget 把 code 送到 WebChat 後端；WebChat 後端帶 verifier 向 Token Exchange 兌換，verifier 相符才取得 S1；WebChat 後端把 S1 寫入 P1 那一列，通知 widget 綁定完成。">
+          <defs>
+            <marker id="q-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker>
+            <marker id="q-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-ok" d="M0,0 L10,5 L0,10 z"/></marker>
+          </defs>
+
+          <!-- 兩個區域 -->
+          <rect class="zone-br" x="16" y="16" width="492" height="1068" rx="14"/>
+          <rect class="zone-be" x="524" y="16" width="660" height="1068" rx="14"/>
+          <text class="zt c-risk" x="32" y="42">瀏覽器（外網・不可信）：只經手一次性 code</text>
+          <text class="zt c-mu" x="540" y="42">後端（內網・S2S）：hash 只在這裡移動</text>
+
+          <!-- 參與者 -->
+          <rect class="box" x="34" y="60" width="140" height="52" rx="10"/>
+          <text class="t" x="104" y="83" text-anchor="middle" style="font-size:14px">宿主頁</text>
+          <text class="s" x="104" y="101" text-anchor="middle" style="font-size:12px">行動客服前端</text>
+          <rect class="box" x="192" y="60" width="140" height="52" rx="10"/>
+          <text class="t" x="262" y="83" text-anchor="middle" style="font-size:14px">WebChat widget</text>
+          <text class="s" x="262" y="101" text-anchor="middle" style="font-size:12px">iframe・WebChat 網域</text>
+          <rect class="box" x="350" y="60" width="140" height="52" rx="10"/>
+          <text class="t" x="420" y="83" text-anchor="middle" style="font-size:14px">彈出視窗</text>
+          <text class="s" x="420" y="101" text-anchor="middle" style="font-size:12px">智生活授權頁</text>
+          <rect class="box" x="534" y="60" width="140" height="52" rx="10"/>
+          <text class="t" x="604" y="83" text-anchor="middle" style="font-size:14px">行動客服後端</text>
+          <text class="s" x="604" y="101" text-anchor="middle" style="font-size:12px">開 WebChat 的平台</text>
+          <rect class="box" x="694" y="60" width="140" height="52" rx="10"/>
+          <text class="t" x="764" y="83" text-anchor="middle" style="font-size:14px">智生活後端</text>
+          <text class="s" x="764" y="101" text-anchor="middle" style="font-size:12px">要補綁的服務</text>
+          <rect class="box-acc" x="854" y="60" width="140" height="52" rx="10"/>
+          <text class="t" x="924" y="83" text-anchor="middle" style="font-size:14px">Token Exchange</text>
+          <text class="s" x="924" y="101" text-anchor="middle" style="font-size:12px">code 一次性・120 秒</text>
+          <rect class="box" x="1014" y="60" width="140" height="52" rx="10"/>
+          <text class="t" x="1084" y="83" text-anchor="middle" style="font-size:14px">WebChat 後端</text>
+          <text class="s" x="1084" y="101" text-anchor="middle" style="font-size:12px">保管 IdP 綁定表</text>
+
+          <line class="life" x1="104" y1="112" x2="104" y2="1068"/>
+          <line class="life" x1="262" y1="112" x2="262" y2="1068"/>
+          <line class="life" x1="420" y1="112" x2="420" y2="1068"/>
+          <line class="life" x1="604" y1="112" x2="604" y2="1068"/>
+          <line class="life" x1="764" y1="112" x2="764" y2="1068"/>
+          <line class="life" x1="924" y1="112" x2="924" y2="1068"/>
+          <line class="life" x1="1084" y1="112" x2="1084" y2="1068"/>
+
+          <!-- 開 WebChat（藍） -->
+          <text class="zt c-acc halo" x="32" y="148">開 WebChat（每次都走）</text>
+
+          <line class="ln ln-acc" x1="104" y1="176" x2="602" y2="176" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="353" y="169" text-anchor="middle">要求開場 code（平台自己的登入狀態）</text>
+          <line class="ln ln-acc" x1="604" y1="212" x2="922" y2="212" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="764" y="205" text-anchor="middle">寄放 <tspan class="mono">I1</tspan>（API Key）</text>
+          <line class="ln ln-acc dash" x1="924" y1="248" x2="606" y2="248" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="764" y="241" text-anchor="middle">code</text>
+          <line class="ln ln-acc dash" x1="604" y1="284" x2="106" y2="284" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="354" y="277" text-anchor="middle">code</text>
+          <line class="ln ln-acc" x1="104" y1="320" x2="260" y2="320" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="183" y="313" text-anchor="middle">code（postMessage）</text>
+          <line class="ln ln-acc" x1="262" y1="356" x2="1082" y2="356" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="673" y="349" text-anchor="middle">code</text>
+          <line class="ln ln-acc" x1="1084" y1="392" x2="926" y2="392" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="1004" y="385" text-anchor="middle">兌換 code（API Key）</text>
+          <line class="ln ln-acc dash" x1="924" y1="428" x2="1082" y2="428" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="1004" y="421" text-anchor="middle"><tspan class="mono">I1</tspan>（兌換即刪）</text>
+          <rect class="nb" x="992" y="450" width="184" height="28" rx="6"/>
+          <text class="nt" x="1084" y="469" text-anchor="middle">查綁定表得 <tspan class="mono">P1</tspan>，記在 session</text>
+          <line class="ln ln-acc dash" x1="1084" y1="500" x2="264" y2="500" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="673" y="493" text-anchor="middle">session cookie（HttpOnly）</text>
+
+          <line class="sep" x1="28" y1="528" x2="1172" y2="528"/>
+
+          <!-- 補綁智生活（綠） -->
+          <text class="zt c-ok halo" x="32" y="556">補綁智生活（未綁時走一次）</text>
+
+          <line class="ln ln-ok" x1="262" y1="584" x2="1082" y2="584" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="673" y="577" text-anchor="middle">開始綁定（使用者按「用智生活授權」）</text>
+          <rect class="nb" x="992" y="606" width="184" height="28" rx="6"/>
+          <text class="nt" x="1084" y="625" text-anchor="middle">verifier 與 <tspan class="mono">P1</tspan> 一起存 session</text>
+          <line class="ln ln-ok dash" x1="1084" y1="656" x2="264" y2="656" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="673" y="649" text-anchor="middle">challenge</text>
+          <line class="ln ln-ok" x1="262" y1="692" x2="418" y2="692" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="341" y="685" text-anchor="middle">開啟（帶 challenge）</text>
+          <line class="ln ln-ok" x1="420" y1="728" x2="762" y2="728" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="591" y="721" text-anchor="middle">使用者登入並同意</text>
+          <line class="ln ln-ok" x1="764" y1="764" x2="922" y2="764" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="844" y="757" text-anchor="middle">寄放 <tspan class="mono">S1</tspan>＋challenge</text>
+          <line class="ln ln-ok dash" x1="924" y1="800" x2="766" y2="800" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="844" y="793" text-anchor="middle">code</text>
+          <line class="ln ln-ok dash" x1="764" y1="836" x2="422" y2="836" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="592" y="829" text-anchor="middle">code</text>
+          <line class="ln ln-ok" x1="420" y1="872" x2="264" y2="872" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="341" y="865" text-anchor="middle">code（postMessage）</text>
+          <line class="ln ln-ok" x1="262" y1="908" x2="1082" y2="908" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="673" y="901" text-anchor="middle">code</text>
+          <line class="ln ln-ok" x1="1084" y1="944" x2="926" y2="944" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="1004" y="937" text-anchor="middle">兌換 code＋verifier</text>
+          <line class="ln ln-ok dash" x1="924" y1="980" x2="1082" y2="980" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="1004" y="973" text-anchor="middle"><tspan class="mono">S1</tspan>（verifier 相符才給）</text>
+          <rect class="nb" x="992" y="1002" width="184" height="28" rx="6"/>
+          <text class="nt" x="1084" y="1021" text-anchor="middle">寫入 <tspan class="mono">P1</tspan> 那一列：智生活＝<tspan class="mono">S1</tspan></text>
+          <line class="ln ln-ok dash" x1="1084" y1="1052" x2="264" y2="1052" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="673" y="1045" text-anchor="middle">綁定完成</text>
+        </svg>
+      </div>
+      <figcaption>紅色虛線框是瀏覽器（外網），經手的只有一次性 code、challenge 和 WebChat 的 session cookie；<code>I1</code>、<code>S1</code> 與 verifier 只在右邊的後端之間以 S2S 移動。開場和補綁共用同一個 Token Exchange 服務：確認登入的一方寄放 hash，WebChat 後端兌換。<code>S1</code> 和 <code>I1</code> 是透過 <code>P1</code> 對上的：開場時查到的 <code>P1</code> 記在 WebChat 後端的 session，補綁開始時 verifier 和 <code>P1</code> 一起存；兌換時 verifier 要和寄放時的 challenge 相符，<code>S1</code> 才會交出來並寫進那個 <code>P1</code> 列。code 拿到別的 session 就換不動。</figcaption>
+    </figure>
+  </section>
+
+  <section id="why-code">
+    <div class="sec-hd">
+      <h2><span class="num">04</span>為什麼不直接把 token（或 hash）交給 WebChat</h2>
+      <p>widget 跑在使用者的瀏覽器上，「後端 → 瀏覽器 → WebChat 後端」這一段一定會經過外網。這段只能讓提貨券（code）通過，不能讓貨（token 或 hash）通過。</p>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>面向</th><th class="bad">直接傳 token</th><th class="good">一次性 code</th></tr></thead>
+        <tbody>
+          <tr><td>被偷後</td><td>能直接打平台 API</td><td>換不出東西：兌換要 WebChat 的 API Key，Token Exchange 的兌換端點只在內網</td></tr>
+          <tr><td>暴露時間</td><td>token 整個有效期，要撐完整個聊天 session</td><td>120 秒，兌換後立即作廢</td></tr>
+          <tr><td>重放</td><td>有效期內出示幾次都收</td><td>只能用一次；重放一定失敗，並觸發告警</td></tr>
+          <tr><td>事前作廢</td><td>已流出就收不回</td><td>兌換前刪掉即可</td></tr>
+          <tr><td>稽核</td><td>沒有交換動作可以記</td><td>誰寄放、誰兌換、何時，都有紀錄</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <dl class="qa">
+      <div>
+        <dt>後端驗證不就擋得住？</dt>
+        <dd>驗簽擋得住篡改，擋不住外洩。被偷的 token 完整、有效、沒被改過，平台看到的請求和正常使用一模一樣。要分辨持有者，平台得改用 DPoP 或 mTLS 綁定的 token，就不是平台零改動了。</dd>
+      </div>
+      <div>
+        <dt>外洩不就代表整個瀏覽器都不安全了？</dt>
+        <dd>很多外洩不必攻破瀏覽器：URL 會進伺服器與 proxy 日誌、Referer、監控工具，使用者也可能把網址貼給客服。這些痕跡留很久，token 在有效期內都能用，code 早就失效。就算瀏覽器真的被攻破，token 能被帶走，在攻擊者自己的機器上用到過期；只拿得到 code 和 HttpOnly cookie 時，攻擊者只能趁頁面開著就地操作。</dd>
+      </div>
+      <div>
+        <dt>直接傳，再補上 code 的那些保護呢？</dt>
+        <dd>保護靠的是收這串字的端點。token 的收件端是各平台既有的 API，平台不改，就加不了一次性、短效期、驗呼叫方。改請平台發短命、一次性、要先兌換才能用的 token，那其實就是 code。</dd>
+      </div>
+      <div>
+        <dt>直接傳 hash 呢？</dt>
+        <dd>更不行。hash 不是秘密，也沒有簽章，在瀏覽器裡改掉就能冒充別人。</dd>
+      </div>
+      <div>
+        <dt>業界怎麼做？</dt>
+        <dd>OAuth 的 Implicit Grant 就是透過瀏覽器直接交 token，RFC 9700（OAuth 2.0 安全最佳實務）建議不要再用，OAuth 2.1 直接移除。標準做法是 Authorization Code，也就是用 code 交換。</dd>
+      </div>
+    </dl>
+  </section>
+
+  <section id="popup">
+    <div class="sec-hd">
+      <h2><span class="num">05</span>補綁的登入：彈出視窗開該服務網域，不包成元件</h2>
+      <p>「用智生活授權」按鈕放在 WebChat widget 裡，由 widget 用 <code>window.open</code> 開出獨立的瀏覽器視窗，不是頁面內的 modal；手機瀏覽器會開成新分頁，一樣能把結果傳回 widget。各平台不需要嵌入其他服務的登入元件，也不需要在自己的網站掛其他服務的登入頁。</p>
+    </div>
+    <div class="cards">
+      <div class="card">
+        <h3>為什麼不把登入表單包成元件嵌進平台</h3>
+        <ul>
+          <li>帳密會輸入在宿主頁上，宿主頁的所有 JS（包括第三方 script 和 XSS）都讀得到。</li>
+          <li>使用者看不到網址列，無法確認是不是真的智生活，等於教使用者在別的網站輸入密碼。</li>
+          <li>智生活改登入方式（OTP、驗證碼、MFA）時，每個嵌入的平台都要跟著發版。</li>
+          <li>改用 iframe 也會被登入頁的 frame-ancestors 設定和瀏覽器的第三方 cookie 限制擋下。</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>為什麼登入後不把 token 存在瀏覽器</h3>
+        <ul>
+          <li>用不到：綁定只需要 hash，而且走 S2S；⑨ 查資料用的也是 hash。</li>
+          <li>風險跨平台：智生活的 token 放在行動客服的頁面上，行動客服一個 XSS 就能偷走智生活的 token。</li>
+          <li>撐不久：token 會過期，綁定是永久的。</li>
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section id="threats">
+    <div class="sec-hd">
+      <h2><span class="num">06</span>綁錯人，等於帳號被接管</h2>
+      <p>綁定表用 hash 查列，所以只要一列綁錯，從任一服務開 WebChat 都會查到錯的人。補綁流程要擋下面這些情境。</p>
+    </div>
+    <div class="tbl">
+      <table>
+        <thead><tr><th>情境</th><th>會發生什麼</th><th>怎麼擋</th></tr></thead>
+        <tbody>
+          <tr><td>冒用別人的 code</td><td>攻擊者拿到別人的綁定 code，在自己的 WebChat 兌換；別人的 <code>S1</code> 被寫進攻擊者那一列，攻擊者就能透過 WebChat 讀別人的智生活資料。</td><td>兌換時要出示 verifier，verifier 只存在發起綁定的那個 WebChat session；換到別的 session 就對不上 challenge。</td></tr>
+          <tr><td>塞入自己的 code</td><td>攻擊者把自己的 code 塞進受害者的 widget，攻擊者的 <code>S1</code> 被寫進受害者那一列；之後攻擊者從智生活開 WebChat，會查到受害者那一列，讀到受害者在行動客服的資料。</td><td>widget 只收自己開的彈出視窗、從該服務網域送來的訊息；就算塞進來，受害者 session 的 verifier 也對不上攻擊者的 challenge。</td></tr>
+          <tr><td>轉寄授權頁連結</td><td>攻擊者用自己的 challenge 做出授權頁連結，傳給受害者登入；code 若交回攻擊者，受害者的 <code>S1</code> 就會寫進攻擊者那一列。</td><td>授權頁只用 postMessage 把 code 交給開它的視窗，targetOrigin 固定為 WebChat 網域；code 不放進 URL；沒有開啟它的視窗就不寄放。</td></tr>
+          <tr><td>竄改要綁的對象</td><td>如果網址帶著 <code>P1</code> 或 <code>I1</code>，改掉就能綁到別人身上。</td><td><code>P1</code> 不離開 WebChat 後端，從 session 取得，沒有參數可以改。</td></tr>
+          <tr><td>同一個 hash 綁進兩列</td><td>同一個智生活帳號同時對應兩個人。</td><td>綁定表每個服務欄位設唯一；衝突時拒絕綁定，不自動合併。</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="note">開場交接的 PKCE 可以照「內網 S2S 簡化版」延到 v2，但補綁的 verifier 比對 v1 就要有：補綁的 code 被冒用，後果是帳號被接管；而且授權頁本來就是新建的，多帶一個 challenge 成本很低。</p>
+  </section>
+
+  <section id="impl">
+    <div class="sec-hd">
+      <h2><span class="num">07</span>彈出視窗實作注意</h2>
+    </div>
+    <ul class="list">
+      <li>彈出視窗要在使用者點擊的當下開，否則會被瀏覽器擋。challenge 要先向 WebChat 後端拿，可以先開空白視窗，拿到 challenge 再導向授權頁；或在顯示「尚未綁定」時就先拿好。</li>
+      <li>widget 只收 <code>event.source</code> 是自己開的那個視窗、<code>event.origin</code> 是該服務網域的訊息；授權頁的 targetOrigin 寫死 WebChat 網域。</li>
+      <li>授權頁不能設 <code>Cross-Origin-Opener-Policy: same-origin</code>，否則 <code>window.opener</code> 會被切斷，code 交不回 widget。宿主頁如果有設 COOP，也要實測 widget 開出的視窗還拿得到 opener。</li>
+      <li>宿主頁若用 sandbox 嵌入 widget，要加上 <code>allow-popups</code> 和 <code>allow-popups-to-escape-sandbox</code>；少了後者，授權頁會繼承 sandbox 限制，登入表單可能無法運作。</li>
+      <li>彈出視窗被關掉或逾時沒有結果時，widget 提示「未完成授權」，讓使用者重新走 ⑤。</li>
+      <li>App 的 WebView 不一定支援彈出視窗和 <code>window.opener</code>：App 要改用 iOS 的 ASWebAuthenticationSession、Android 的 Custom Tabs，導回方式另外設計。</li>
+    </ul>
+  </section>
+
+  <section id="open">
+    <div class="sec-hd">
+      <h2><span class="num">08</span>待確認</h2>
+    </div>
+    <ul class="list">
+      <li><strong>Token Exchange 服務改寄放會員 hash：</strong>不再寄放平台 token，「內網 S2S 簡化版」的存入／兌換合約要跟著改，並加上 challenge 欄位。</li>
+      <li><strong>⑨ 各服務 API 信任 WebChat 帶來的 hash：</strong>WebChat 的 API Key 等於能查任何人的資料，權限範圍與稽核要另外確認。</li>
+      <li><strong>widget 的 session cookie：</strong>widget 是嵌在別人網站裡的 iframe，它的 cookie 屬於第三方 cookie，Safari 預設會擋，開場和補綁都受影響；要確認做法，例如 Partitioned cookie，或把 session token 放在 widget 記憶體。</li>
+      <li><strong>hash 演算法：</strong>必須固定不變，PK 或演算法一改，綁定就斷。PK 若是流水號，單純 SHA-256 一旦外流就能被窮舉回推，建議各服務用自己的密鑰做 HMAC。</li>
+      <li><strong>各服務新增 H(PK) 欄位：</strong>建唯一索引；既有會員要批次回填，新會員建立時一併寫入。</li>
+      <li><strong>綁定衝突：</strong>同一個 hash 已在別列時怎麼處理，之後要不要、怎麼合併兩列。</li>
+      <li><strong>解除綁定：</strong>使用者能不能自己解除，解除後要不要通知該服務。</li>
+      <li><strong>App 內的補綁流程：</strong>WebView 不支援彈出視窗時的替代做法。</li>
+    </ul>
+  </section>
+</main>
+
+<script>
+/* 資料流動畫：連結加上 #flow-login／#flow-open／#flow-bind／#flow-query 可直接選好流程 */
+(function () {
+  var svg = document.getElementById('flow');
+  if (!svg) return;
+  var $ = function (id) { return document.getElementById(id); };
+  var NS = 'http://www.w3.org/2000/svg';
+  var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var pkt = $('pkt');
+  var NAME = { H: '宿主頁', G: 'WebChat widget', P: '彈出視窗', A: '行動客服後端', B: '智生活後端', W: 'WebChat 後端', T: 'Token Exchange', D: 'IdP 綁定表', M: '智生活會員表' };
+  var ORDER = ['login', 'open', 'bind', 'query'];
+
+  function base() {
+    return { H: '未登入', G: '未開啟', P: '未開啟', A: '—', B: '—', W: 'session：—', T: '暫存：無',
+      p: '—', i: '—', s: '（未綁）', m: '（未綁）', pop: false, mf: false };
+  }
+  function loggedIn(s) { s.H = '已登入（行動客服 session）'; s.A = '會員 10023 已登入'; return s; }
+  function opened(s) { s.G = '已開場（session cookie）'; s.W = 'session：P1'; s.p = 'P1'; s.i = 'I1'; return s; }
+  function bound(s) { s.s = 'S1'; s.G = '已開場・智生活已綁'; return s; }
+
+  var SC = {
+    login: {
+      name: '登入平台',
+      intro: '使用者還沒登入任何平台。先看最一般的情況：使用者登入行動客服網站。',
+      pre: function () { return base(); },
+      steps: [
+        { a: 'H', b: 'A', c: [['帳密', 'cred']], t: '使用者登入行動客服',
+          d: '使用者在行動客服網站輸入帳密，送到行動客服後端驗證。這是平台既有的登入機制，整個方案不需要改。',
+          fx: function (s) { s.A = '會員 10023 已登入'; } },
+        { a: 'A', b: 'H', c: [['平台 session', 'cookie']], t: '平台建立自己的登入狀態',
+          d: '行動客服後端把自己的 session（或 token）交給瀏覽器。這份 token 只給行動客服自己用，之後的流程都不會把它交給 WebChat。',
+          fx: function (s) { s.H = '已登入（行動客服 session）'; } }
+      ]
+    },
+    open: {
+      name: '開啟 WebChat',
+      intro: '前提：使用者已登入行動客服。看開啟 WebChat 時，WebChat 怎麼知道「這個人是誰」。每次開 WebChat 都走這段。',
+      pre: function () { return loggedIn(base()); },
+      steps: [
+        { a: 'H', b: 'A', c: [['要開場 code', 'req']], t: '① 點開 WebChat',
+          d: '使用者在行動客服網站點開 WebChat。宿主頁帶著平台自己的登入狀態，向行動客服後端要一張開場 code。' },
+        { a: 'A', b: 'T', c: [['I1', 'hash']], t: '② 平台寄放 hash',
+          d: '行動客服後端確認使用者已登入，從會員表的 H(PK) 欄取出 I1（= H(10023)），以 S2S 帶 API Key 寄放到 Token Exchange。',
+          fx: function (s) { s.T = '暫存：I1・120 秒'; } },
+        { a: 'T', b: 'A', c: [['code', 'code']], t: '發一次性 code',
+          d: 'Token Exchange 回一張一次性 code：120 秒失效、只能兌換一次，code 本身不帶任何資訊。' },
+        { a: 'A', b: 'H', c: [['code', 'code']], t: 'code 交回瀏覽器',
+          d: '行動客服後端把 code 交給宿主頁。從這裡開始經過瀏覽器，但瀏覽器手上只有 code，沒有 token，也沒有 I1。' },
+        { a: 'H', b: 'G', c: [['code', 'code']], t: 'postMessage 交給 widget',
+          d: '宿主頁用 postMessage 把 code 交給 WebChat widget，targetOrigin 指定 WebChat 網域，其他網站收不到。' },
+        { a: 'G', b: 'W', c: [['code', 'code']], t: '③ widget 送出 code',
+          d: 'widget 把 code 送到 WebChat 後端開場。' },
+        { a: 'W', b: 'T', c: [['code', 'code']], t: '③ S2S 兌換',
+          d: 'WebChat 後端帶自己的 API Key，以 S2S 向 Token Exchange 兌換這張 code。兌換端點只在內網，code 被偷了在外面也換不動。' },
+        { a: 'T', b: 'W', c: [['I1', 'hash']], t: '交回 I1，code 作廢',
+          d: 'Token Exchange 交回 I1，並立刻刪掉這筆暫存。同一張 code 再拿來兌換一定失敗，還會觸發告警。',
+          fx: function (s) { s.T = '暫存：無'; } },
+        { a: 'W', b: 'D', c: [['I1', 'hash']], t: '④ 用 I1 查綁定表',
+          d: '用 I1 查 IdP 綁定表的行動客服欄，找到這個人那一列 P1；查不到就新建一列，寫入 I1。',
+          fx: function (s) { s.p = 'P1'; s.i = 'I1'; } },
+        { a: 'D', b: 'W', c: [['P1', 'hash']], t: 'P1 記在 session',
+          d: 'WebChat 後端把 P1 記在自己的 session。P1 只在 WebChat 後端使用，不會送到瀏覽器。',
+          fx: function (s) { s.W = 'session：P1'; } },
+        { a: 'W', b: 'G', c: [['session cookie', 'cookie']], t: '回給 widget 一個 cookie',
+          d: 'widget 只拿到一個 HttpOnly session cookie。整個開場過程，瀏覽器沒看過 token、I1 或 P1。',
+          fx: function (s) { s.G = '已開場（session cookie）'; } }
+      ]
+    },
+    bind: {
+      name: 'WebChat 觸發登入其他平台',
+      intro: '前提：WebChat 已開啟，綁定表裡這個人只有行動客服的 I1。看 WebChat 怎麼讓使用者登入智生活，把 S1 補進同一列。',
+      pre: function () { return opened(loggedIn(base())); },
+      steps: [
+        { a: 'G', b: 'W', c: [['開始綁定', 'req']], t: '⑤ 按「用智生活授權」',
+          d: '使用者要查智生活的資料，但還沒綁。使用者按「用智生活授權」：widget 在點擊當下先開一個空白的彈出視窗，同時通知 WebChat 後端開始綁定。',
+          fx: function (s) { s.P = '空白視窗（等待導向）'; s.pop = true; } },
+        { self: 'W', t: '產生 verifier',
+          d: 'WebChat 後端產生一個隨機的 verifier，和這個 session 的 P1 一起存起來。verifier 從頭到尾不離開後端。',
+          fx: function (s) { s.W = 'session：P1・verifier'; } },
+        { a: 'W', b: 'G', c: [['challenge', 'code']], t: '只交出 challenge',
+          d: '後端只把 challenge（verifier 的 SHA-256）交給 widget。challenge 被看到也沒關係，無法從它反推出 verifier。' },
+        { a: 'G', b: 'P', c: [['challenge', 'code']], t: '導到智生活授權頁',
+          d: 'widget 把彈出視窗導到智生活自己網域的授權頁，網址帶上 challenge。使用者看得到網址列，可以確認是真的智生活。',
+          fx: function (s) { s.P = '智生活授權頁'; } },
+        { a: 'P', b: 'B', c: [['帳密', 'cred']], t: '⑥ 在智生活登入並同意',
+          d: '使用者在智生活的授權頁登入並同意授權。帳密只輸入在智生活的網域，行動客服和 WebChat 都碰不到。',
+          fx: function (s) { s.B = '會員 A-7781 已登入'; } },
+        { a: 'B', b: 'T', c: [['S1', 'hash'], ['challenge', 'code']], t: '⑦ 寄放 S1＋challenge',
+          d: '智生活從會員表的 H(PK) 欄取出 S1（= H(A-7781)），連同 challenge 以 S2S 寄放到 Token Exchange。智生活不知道 P1，也不需要知道要綁給誰。',
+          fx: function (s) { s.T = '暫存：S1＋challenge'; } },
+        { a: 'T', b: 'B', c: [['code', 'code']], t: '發一次性 code',
+          d: 'Token Exchange 回一張新的一次性 code。' },
+        { a: 'B', b: 'P', c: [['code', 'code']], t: 'code 交回授權頁',
+          d: '智生活後端把 code 交給授權頁。' },
+        { a: 'P', b: 'G', c: [['code', 'code']], t: 'postMessage 交回 widget',
+          d: '授權頁用 window.opener.postMessage 把 code 交回 widget，targetOrigin 寫死 WebChat 網域，然後關閉視窗。widget 只收自己開的那個視窗送來的訊息。',
+          fx: function (s) { s.P = '已關閉'; s.pop = false; } },
+        { a: 'G', b: 'W', c: [['code', 'code']], t: 'widget 送出 code',
+          d: 'widget 把 code 送到 WebChat 後端，請求帶著同一個 session cookie。' },
+        { a: 'W', b: 'T', c: [['code', 'code'], ['verifier', 'hash']], t: '⑧ 帶 verifier 兌換',
+          d: 'WebChat 後端從 session 取出 verifier，連同 code 以 S2S 兌換。' },
+        { a: 'T', b: 'W', c: [['S1', 'hash']], t: 'verifier 相符才交出 S1',
+          d: 'Token Exchange 檢查 SHA-256(verifier) 是否等於寄放時的 challenge，相符才交回 S1，並刪掉這筆暫存。code 就算被別的 session 拿去兌換，verifier 也對不上。',
+          fx: function (s) { s.T = '暫存：無'; } },
+        { a: 'W', b: 'D', c: [['S1', 'hash']], t: '寫進 P1 那一列',
+          d: '把 S1 寫進 session 記下的 P1 那一列的智生活欄。I1 和 S1 就這樣透過 P1 對上；S1 若已在別列，就拒絕綁定。',
+          fx: function (s) { s.s = 'S1'; s.W = 'session：P1'; } },
+        { a: 'W', b: 'G', c: [['綁定完成', 'data']], t: '通知 widget',
+          d: 'widget 收到綁定完成，接著就能查智生活的資料。整個過程中，瀏覽器經手的只有 challenge 和 code。',
+          fx: function (s) { s.G = '已開場・智生活已綁'; } }
+      ]
+    },
+    query: {
+      name: '查資料',
+      intro: '前提：已開啟 WebChat，智生活也已綁定（可以先跑流程 2、3）。看綁定之後，WebChat 怎麼查到智生活的資料，以及智生活怎麼靠會員表新增的 H(PK) 欄知道是哪個會員。',
+      pre: function () { return bound(opened(loggedIn(base()))); },
+      steps: [
+        { a: 'G', b: 'W', c: [['問題', 'req']], t: '使用者提問',
+          d: '使用者在 WebChat 問「我的智生活帳單」。請求只帶 session cookie，不帶任何 hash 或 token。' },
+        { a: 'W', b: 'D', c: [['P1', 'hash']], t: '用 P1 查綁定表',
+          d: 'WebChat 後端從 session 拿出 P1，查綁定表這一列的智生活欄。' },
+        { a: 'D', b: 'W', c: [['S1', 'hash']], t: '取得 S1',
+          d: '取得這個人在智生活的 H(PK)，也就是 S1。' },
+        { a: 'W', b: 'B', c: [['S1', 'hash']], t: '⑨ S2S 帶 H(PK) 呼叫智生活 API',
+          d: 'WebChat 後端帶自己的 API Key，以 S2S 呼叫智生活 API，參數是 S1。API Key 證明呼叫方是 WebChat，S1 指出要查哪個會員。',
+          fx: function (s) { s.B = 'API Key 驗證通過'; } },
+        { a: 'B', b: 'M', c: [['S1', 'hash']], t: '用 H(PK) 欄找回會員',
+          d: '智生活用 S1 查會員表新增的 H(PK) 欄（有索引），找到 PK 是 A-7781 的會員。hash 算不回 PK，所以這個欄位一定要有。',
+          fx: function (s) { s.mf = true; } },
+        { a: 'M', b: 'B', c: [['A-7781', 'data']], t: '取得自家會員',
+          d: '智生活拿到自家 PK，照既有邏輯查帳單。PK 只在智生活內部使用，不會離開智生活。',
+          fx: function (s) { s.B = '查詢會員 A-7781'; } },
+        { a: 'B', b: 'W', c: [['帳單資料', 'data']], t: '智生活回傳資料',
+          d: '智生活把這位會員的帳單資料回傳給 WebChat 後端。' },
+        { a: 'W', b: 'G', c: [['回覆', 'data']], t: '回覆使用者',
+          d: 'WebChat 把整理好的回覆送回 widget。' }
+      ]
+    }
+  };
+
+  var sc, key, idx = -1, playing = false, busy = false, speed = 1, last = null;
+  var timer = 0, selfT = 0, fadeT = 0, safeT = 0, raf = 0, items = [];
+  var wires = svg.querySelectorAll('.wire'), nodes = svg.querySelectorAll('.node');
+  var KEYS = ['H', 'G', 'P', 'A', 'B', 'W', 'T'], DK = ['p', 'i', 's', 'm'];
+
+  function kindOf(parts) {
+    var k = parts.map(function (p) { return p[1]; });
+    return k.indexOf('hash') >= 0 ? 'hash' : k.indexOf('code') >= 0 ? 'code' : 'other';
+  }
+
+  function stateAt(n) {
+    var st = sc.pre();
+    for (var k = 0; k < n; k++) if (sc.steps[k].fx) sc.steps[k].fx(st);
+    return st;
+  }
+
+  function render(st, mark) {
+    KEYS.forEach(function (k) {
+      var el = $('s-' + k);
+      el.textContent = st[k];
+      el.classList.toggle('chg', !!(mark && last && last[k] !== st[k]));
+    });
+    DK.forEach(function (k) {
+      var el = $('d-' + k), v = st[k], empty = v === '—' || v.charAt(0) === '（';
+      el.textContent = v;
+      el.setAttribute('class', (empty ? 'dv-empty' : 'dv') + (mark && last && last[k] !== v ? ' chg' : ''));
+    });
+    $('n-P').classList.toggle('dim', !st.pop);
+    $('m-hit').classList.toggle('on', !!st.mf);
+    last = JSON.parse(JSON.stringify(st));
+  }
+
+  function chip(parts) {
+    while (pkt.firstChild) pkt.removeChild(pkt.firstChild);
+    var gs = [], total = 0, gap = 6;
+    parts.forEach(function (p) {
+      var g = document.createElementNS(NS, 'g'), r = document.createElementNS(NS, 'rect'), t = document.createElementNS(NS, 'text');
+      g.setAttribute('class', 'chip c-' + p[1]);
+      t.textContent = p[0];
+      t.setAttribute('text-anchor', 'middle');
+      t.setAttribute('y', '4.5');
+      g.appendChild(r); g.appendChild(t); pkt.appendChild(g);
+      var w = Math.ceil(t.getComputedTextLength()) + 20;
+      r.setAttribute('x', -w / 2); r.setAttribute('y', -11);
+      r.setAttribute('width', w); r.setAttribute('height', 22); r.setAttribute('rx', 11);
+      gs.push([g, w]); total += w;
+    });
+    var x = -(total + gap * (gs.length - 1)) / 2;
+    gs.forEach(function (gw) {
+      gw[0].setAttribute('transform', 'translate(' + (x + gw[1] / 2) + ',0)');
+      x += gw[1] + gap;
+    });
+  }
+
+  function clearHL() {
+    wires.forEach(function (w) { w.classList.remove('on', 'k-code', 'k-hash', 'k-other'); });
+    nodes.forEach(function (n) { n.classList.remove('hl', 'pulse'); });
+    clearTimeout(fadeT);
+    pkt.style.opacity = 0;
+  }
+
+  function stop() {
+    clearTimeout(timer); clearTimeout(selfT); clearTimeout(safeT); cancelAnimationFrame(raf);
+    busy = false;
+  }
+
+  function run(step, done) {
+    clearHL();
+    if (step.self) {
+      var nd = $('n-' + step.self);
+      nd.classList.add('hl');
+      if (!reduce) nd.classList.add('pulse');
+      selfT = setTimeout(done, reduce ? 0 : 900 * speed);
+      return;
+    }
+    var w = $('w-' + step.a + '-' + step.b), rev = false;
+    if (!w) { w = $('w-' + step.b + '-' + step.a); rev = true; }
+    w.classList.add('on', 'k-' + kindOf(step.c));
+    $('n-' + step.a).classList.add('hl');
+    $('n-' + step.b).classList.add('hl');
+    chip(step.c);
+    var len = w.getTotalLength();
+    function at(e) {
+      var pt = w.getPointAtLength(len * (rev ? 1 - e : e));
+      pkt.setAttribute('transform', 'translate(' + pt.x + ',' + pt.y + ')');
+    }
+    if (reduce) { at(0.5); pkt.style.opacity = 1; done(); return; }
+    var dur = 1100 * speed, t0 = performance.now(), ended = false;
+    function finish() {
+      if (ended) return;
+      ended = true;
+      cancelAnimationFrame(raf); clearTimeout(safeT);
+      at(1);
+      fadeT = setTimeout(function () { pkt.style.opacity = 0; }, 700);
+      done();
+    }
+    at(0);
+    pkt.style.opacity = 1;
+    // 分頁在背景時瀏覽器會暫停 requestAnimationFrame，用計時器保證這一步會完成
+    safeT = setTimeout(finish, dur + 300);
+    raf = requestAnimationFrame(function frame(now) {
+      var p = Math.min(1, Math.max(0, (now - t0) / dur));
+      at(p < .5 ? 4 * p * p * p : 1 - Math.pow(-2 * p + 2, 3) / 2);
+      if (p < 1) raf = requestAnimationFrame(frame); else finish();
+    });
+  }
+
+  function dwell(s) { return (1500 + s.d.length * 70) * speed; }
+
+  function moveHTML(s) {
+    if (!s) return '';
+    if (s.self) return NAME[s.self] + '（內部處理）';
+    return NAME[s.a] + ' → ' + NAME[s.b] + s.c.map(function (p) {
+      return '<span class="lg lg-' + p[1] + '">' + p[0] + '</span>';
+    }).join('');
+  }
+
+  function ui() {
+    var N = sc.steps.length, s = idx >= 0 ? sc.steps[idx] : null;
+    $('fStep').textContent = s ? '步驟 ' + (idx + 1) + ' / ' + N : sc.name + '・共 ' + N + ' 步';
+    $('fTitle').textContent = s ? s.t : sc.name;
+    $('fMove').innerHTML = moveHTML(s);
+    $('fText').textContent = s ? s.d : sc.intro;
+    $('fPlay').textContent = playing ? '暫停' : idx >= N - 1 ? '從頭播放' : idx < 0 ? '播放' : '繼續';
+    $('fPrev').disabled = idx <= 0;
+    $('fNext').disabled = idx >= N - 1;
+    items.forEach(function (b, k) {
+      if (k === idx) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+      b.classList.toggle('done', k < idx);
+    });
+    var ol = $('fList'), cur = items[idx];
+    if (cur) {
+      if (cur.offsetTop < ol.scrollTop) ol.scrollTop = cur.offsetTop;
+      else if (cur.offsetTop + cur.offsetHeight > ol.scrollTop + ol.clientHeight) ol.scrollTop = cur.offsetTop + cur.offsetHeight - ol.clientHeight;
+    }
+    var nk = ORDER[ORDER.indexOf(key) + 1], nb = $('fNextSc');
+    nb.hidden = !(nk && idx === N - 1 && !busy);
+    if (nk) { nb.textContent = '下一個流程：' + SC[nk].name + ' →'; nb.setAttribute('data-sc', nk); }
+  }
+
+  function goTo(n) {
+    stop();
+    idx = n;
+    var st = stateAt(n);
+    render(st, false);
+    busy = true;
+    ui();
+    run(sc.steps[n], function () {
+      busy = false;
+      if (sc.steps[n].fx) sc.steps[n].fx(st);
+      render(st, true);
+      if (n >= sc.steps.length - 1) { playing = false; ui(); return; }
+      if (playing) timer = setTimeout(function () { goTo(n + 1); }, dwell(sc.steps[n]));
+      else ui();
+    });
+  }
+
+  function list() {
+    var ol = $('fList');
+    ol.textContent = '';
+    items = sc.steps.map(function (s, k) {
+      var li = document.createElement('li'), b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = s.t;
+      b.addEventListener('click', function () { playing = false; goTo(k); });
+      li.appendChild(b);
+      ol.appendChild(li);
+      return b;
+    });
+  }
+
+  function load(k, auto) {
+    stop(); clearHL();
+    key = k; sc = SC[k]; idx = -1; playing = false; last = null;
+    document.querySelectorAll('.sc-btn').forEach(function (b) {
+      b.setAttribute('aria-pressed', String(b.getAttribute('data-sc') === k));
+    });
+    render(sc.pre(), false);
+    list();
+    ui();
+    if (auto) { playing = true; goTo(0); }
+  }
+
+  document.querySelectorAll('.sc-btn').forEach(function (b) {
+    b.addEventListener('click', function () { load(b.getAttribute('data-sc'), true); });
+  });
+  $('fNextSc').addEventListener('click', function () { load(this.getAttribute('data-sc'), true); });
+  $('fPlay').addEventListener('click', function () {
+    if (playing) { playing = false; clearTimeout(timer); ui(); return; }
+    playing = true;
+    if (busy) { ui(); return; }
+    goTo(idx >= sc.steps.length - 1 ? 0 : idx + 1);
+  });
+  $('fPrev').addEventListener('click', function () { playing = false; if (idx > 0) goTo(idx - 1); });
+  $('fNext').addEventListener('click', function () { playing = false; if (idx < sc.steps.length - 1) goTo(idx + 1); });
+  $('fReplay').addEventListener('click', function () { playing = true; goTo(0); });
+  $('fSpeed').addEventListener('change', function () { speed = parseFloat(this.value) || 1; });
+
+  function fromHash() {
+    var m = /^#flow-(login|open|bind|query)$/.exec(location.hash);
+    if (!m) return false;
+    load(m[1], false);
+    $('anim').scrollIntoView();
+    return true;
+  }
+  if (!fromHash()) load('login', false);
+  window.addEventListener('hashchange', fromHash);
+})();
+</script>

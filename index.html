@@ -205,15 +205,15 @@
 <header class="wrap">
   <p class="eyebrow">流程總覽 · 2026-10-19</p>
   <h1>WebChat 身分綁定流程總覽</h1>
-  <p class="lede">一張圖看完三件事：每次開 WebChat 怎麼確認身分、查資料；還沒綁的服務怎麼綁；什麼時候能建立統一 IdP。綁定表直接存各服務會員 PK 的 hash，以 hash 關聯各服務會員表；瀏覽器只經手一次性 code，token 和 hash 都只在後端之間經 Token Exchange 服務傳遞。</p>
-  <p class="chg">與 10/16 版的差異：會員表不新增 <code>idp_id</code>，改為新增自家 PK 的 <code>H(PK)</code> 欄位，以 hash 關聯；開場與補綁都經 Token Exchange 服務，用一次性 code 交接；補綁改用彈出視窗（<code>window.open</code>）開該服務自己網域的授權頁。</p>
+  <p class="lede">一張圖看完三件事：每次開 WebChat 怎麼確認身分、查資料；還沒綁的服務怎麼綁；什麼時候能建立統一 IdP。綁定表由獨立的 IdP 綁定服務保管，直接存各服務會員 PK 的 hash，以 hash 關聯各服務會員表；瀏覽器只經手一次性 code，token 和 hash 都只在後端之間經 Token Exchange 服務傳遞。</p>
+  <p class="chg">與 10/16 版的差異：會員表不新增 <code>idp_id</code>，改為新增自家 PK 的 <code>H(PK)</code> 欄位，以 hash 關聯；開場與補綁都經 Token Exchange 服務，用一次性 code 交接；綁定表改由獨立的 IdP 綁定服務保管；補綁改用彈出視窗（<code>window.open</code>）開各服務自己的獨立授權頁。</p>
 </header>
 
 <main class="wrap">
   <section id="f0">
     <figure>
       <div class="scroll">
-        <svg class="dia" viewBox="0 0 1200 966" role="img" aria-label="WebChat 身分綁定流程總覽。每次開 WebChat：一、使用者已登入任一平台，開啟 WebChat；二、平台後端確認登入後，以 S2S 把會員 hash I1 寄放到 Token Exchange 服務，換一次性 code；三、瀏覽器只轉交 code，WebChat 後端以 S2S 向 Token Exchange 服務兌換得到 I1；四、用 I1 查 IdP 綁定表，找出這個人那一列 P1，查無就新建一列。需要的服務已綁，就到九、以 S2S 帶該服務的 H(PK) 呼叫該服務 API，該服務用會員表新增的 H(PK) 欄找回會員。未綁時：五、使用者在 WebChat 按用智生活授權，widget 用 window.open 開彈出視窗到智生活網域，帶 challenge，不嵌入登入表單；六、使用者在智生活自己的授權頁登入並同意，智生活取得自家 hash S1；七、智生活以 S2S 把 S1 與 challenge 寄放到 Token Exchange 服務換 code，經 postMessage 把 code 交回 widget；八、WebChat 後端帶 verifier 以 S2S 向 Token Exchange 服務換回 S1，寫入 P1 那一列，S1 已在別列就拒絕，之後到第九步。Token Exchange 服務只收 S2S 呼叫，寄放 hash 換一次性 code，兌換時交回 hash 並立即刪除，code 120 秒失效。綁定表一列一人，存 IdP ID 和各服務 PK 的 hash；各服務會員表新增 H(PK) 欄位並建索引，以 hash 對應綁定表。長期：所有會員系統都關聯過才建立統一 IdP，還沒就持續漸進綁定。">
+        <svg class="dia" viewBox="0 0 1200 966" role="img" aria-label="WebChat 身分綁定流程總覽。每次開 WebChat：一、使用者已登入任一平台，開啟 WebChat；二、平台後端確認登入後，以 S2S 把會員 hash I1 寄放到 Token Exchange 服務，換一次性 code；三、瀏覽器只轉交 code，WebChat 後端以 S2S 向 Token Exchange 服務兌換得到 I1；四、以 S2S 呼叫獨立的 IdP 綁定服務，用 I1 找出這個人那一列 P1，查無就新建一列。需要的服務已綁，就到九、以 S2S 帶該服務的 H(PK) 呼叫該服務 API，該服務用會員表新增的 H(PK) 欄找回會員。未綁時：五、使用者在 WebChat 按用智生活授權，widget 用 window.open 開彈出視窗到智生活網域，帶 challenge，不嵌入登入表單；六、使用者在智生活的獨立授權頁（智生活網域）登入並同意，智生活取得自家 hash S1；七、智生活以 S2S 把 S1 與 challenge 寄放到 Token Exchange 服務換 code，經 postMessage 把 code 交回 widget；八、WebChat 後端帶 verifier 以 S2S 向 Token Exchange 服務換回 S1，請 IdP 綁定服務寫入 P1 那一列，S1 已在別列就拒絕，之後到第九步。Token Exchange 服務只收 S2S 呼叫，寄放 hash 換一次性 code，兌換時交回 hash 並立即刪除，code 120 秒失效。綁定表由獨立的 IdP 綁定服務保管，一列一人，存 IdP ID 和各服務 PK 的 hash；各服務會員表新增 H(PK) 欄位並建索引，以 hash 對應綁定表。長期：所有會員系統都關聯過才建立統一 IdP，還沒就持續漸進綁定。">
           <defs>
             <marker id="o-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker>
             <marker id="o-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-ok" d="M0,0 L10,5 L0,10 z"/></marker>
@@ -247,8 +247,8 @@
 
           <rect class="box" x="610" y="64" width="160" height="88" rx="10"/>
           <text class="t" x="690" y="94" text-anchor="middle">④ 用 <tspan class="mono">I1</tspan> 查綁定表</text>
-          <text class="s" x="690" y="117" text-anchor="middle">找出這個人那一列 <tspan class="mono">P1</tspan></text>
-          <text class="s" x="690" y="136" text-anchor="middle">查無就新建一列</text>
+          <text class="s" x="690" y="117" text-anchor="middle">S2S 問 IdP 綁定服務</text>
+          <text class="s" x="690" y="136" text-anchor="middle">取得 <tspan class="mono">P1</tspan>，查無就新建</text>
 
           <polygon class="box" points="872,50 946,108 872,166 798,108"/>
           <text class="t" x="872" y="104" text-anchor="middle">需要的服務</text>
@@ -278,7 +278,7 @@
 
           <rect class="box-okline" x="732" y="312" width="280" height="86" rx="10"/>
           <text class="t" x="872" y="343" text-anchor="middle">⑥ 在該服務登入並同意</text>
-          <text class="s" x="872" y="367" text-anchor="middle">授權頁在智生活自己的網域</text>
+          <text class="s" x="872" y="367" text-anchor="middle">智生活的獨立授權頁（自家網域）</text>
           <text class="s" x="872" y="386" text-anchor="middle">驗帳密後取得自家 hash <tspan class="mono">S1</tspan></text>
           <line class="ln ln-ok" x1="872" y1="398" x2="872" y2="422" marker-end="url(#o-ok)"/>
 
@@ -289,9 +289,9 @@
           <line class="ln ln-ok" x1="872" y1="510" x2="872" y2="534" marker-end="url(#o-ok)"/>
 
           <rect class="box-okline" x="732" y="536" width="280" height="86" rx="10"/>
-          <text class="t" x="872" y="567" text-anchor="middle">⑧ WebChat 兌換並寫入</text>
+          <text class="t" x="872" y="567" text-anchor="middle">⑧ 兌換後寫入綁定表</text>
           <text class="s" x="872" y="591" text-anchor="middle">後端帶 verifier，S2S 換回 <tspan class="mono">S1</tspan></text>
-          <text class="s" x="872" y="610" text-anchor="middle">寫入 <tspan class="mono">P1</tspan> 那一列；<tspan class="mono">S1</tspan> 已在別列就拒絕</text>
+          <text class="s" x="872" y="610" text-anchor="middle">IdP 綁定服務寫入 <tspan class="mono">P1</tspan> 列，重複就拒絕</text>
 
           <polyline class="ln ln-ok" points="1012,579 1085,579 1085,154" marker-end="url(#o-ok)"/>
           <text class="lbl c-ok" x="1048" y="569" text-anchor="middle">綁好後</text>
@@ -306,22 +306,22 @@
 
           <!-- 讀取線 -->
           <line class="ln ln-mu dash" x1="650" y1="152" x2="650" y2="198" marker-end="url(#o-mu)"/>
-          <text class="lbl c-mu" x="660" y="182">查詢</text>
+          <text class="lbl c-mu" x="660" y="182">S2S 查詢</text>
           <polyline class="ln ln-mu dash" points="1150,152 1150,723 702,723" marker-end="url(#o-mu)"/>
           <text class="lbl c-mu" x="926" y="715" text-anchor="middle">⑨ 該服務以 <tspan class="mono">H(PK)</tspan> 找回會員</text>
 
           <!-- IdP 綁定表 -->
           <rect class="box-ok" x="380" y="200" width="320" height="228" rx="12"/>
           <path class="tbl-hd" d="M380,212 a12,12 0 0 1 12,-12 h296 a12,12 0 0 1 12,12 v40 h-320 z"/>
-          <text class="t on-ok" x="400" y="222">IdP 綁定表（正本）</text>
-          <text class="s on-ok" x="400" y="242" style="font-size:12px">一列一人：IdP ID＋各服務 H(自家 PK)</text>
+          <text class="t on-ok" x="400" y="222">IdP 綁定服務（獨立服務）</text>
+          <text class="s on-ok" x="400" y="242" style="font-size:12px">綁定表正本：一列一人，IdP ID＋各服務 H(PK)</text>
           <line class="tbl-ln" x1="380" y1="296" x2="700" y2="296"/>
           <line class="tbl-ln" x1="380" y1="340" x2="700" y2="340"/>
           <line class="tbl-ln" x1="380" y1="384" x2="700" y2="384"/>
           <line class="tbl-ln" x1="500" y1="252" x2="500" y2="428"/>
           <text class="r" x="400" y="279">IdP ID</text>
           <text class="pk" x="520" y="280">P1</text>
-          <text class="s" x="688" y="279" text-anchor="end">只在 WebChat 後端使用</text>
+          <text class="s" x="688" y="279" text-anchor="end">不經過瀏覽器</text>
           <text class="r" x="400" y="323">行動客服</text>
           <text class="pk" x="520" y="324">I1</text>
           <text class="lbl c-ok" x="688" y="323" text-anchor="end" style="stroke: var(--ok-soft)">已綁</text>
@@ -394,7 +394,7 @@
           <text class="h halo" x="24" y="832">長期：何時建立統一 IdP</text>
         </svg>
       </div>
-      <figcaption>藍線是每次開 WebChat 都會走的路：平台後端確認登入後，把會員 hash（<code>I1</code>）寄放到 Token Exchange 服務，換一張一次性 code；瀏覽器只轉交 code，WebChat 後端再以 S2S 向 Token Exchange 換回 <code>I1</code>，查綁定表找到這個人那一列（<code>P1</code>），拿需要的服務 hash 去存取資料。綠線只在服務還沒綁時走一次：widget 用彈出視窗開該服務自己網域的授權頁，使用者登入後，由該服務把自家 hash（<code>S1</code>）寄放到 Token Exchange，WebChat 後端兌換後寫進 <code>P1</code> 那一列。開場和補綁共用同一個 Token Exchange 服務；綁定表直接存各服務 PK 的 hash；各服務會員表不加 IdP 欄位，只新增一個 <code>H(PK)</code> 欄並建索引，⑨ 該服務收到 S2S 請求時，就用這個欄位找回是哪個會員；<code>P1</code> 只在 WebChat 後端使用，不經過瀏覽器。</figcaption>
+      <figcaption>藍線是每次開 WebChat 都會走的路：平台後端確認登入後，把會員 hash（<code>I1</code>）寄放到 Token Exchange 服務，換一張一次性 code；瀏覽器只轉交 code，WebChat 後端再以 S2S 向 Token Exchange 換回 <code>I1</code>，以 S2S 呼叫獨立的 IdP 綁定服務，找到這個人那一列（<code>P1</code>），拿需要的服務 hash 去存取資料。綠線只在服務還沒綁時走一次：widget 用彈出視窗開該服務自己的獨立授權頁，使用者登入後，由該服務把自家 hash（<code>S1</code>）寄放到 Token Exchange，WebChat 後端兌換後，請 IdP 綁定服務寫進 <code>P1</code> 那一列。開場和補綁共用同一個 Token Exchange 服務；綁定表直接存各服務 PK 的 hash；各服務會員表不加 IdP 欄位，只新增一個 <code>H(PK)</code> 欄並建索引，⑨ 該服務收到 S2S 請求時，就用這個欄位找回是哪個會員；<code>P1</code> 只在 WebChat 後端和 IdP 綁定服務之間傳遞，不經過瀏覽器。</figcaption>
     </figure>
   </section>
 
@@ -411,7 +411,7 @@
         <button type="button" class="btn sc-btn" data-sc="query" aria-pressed="false">4 查資料</button>
       </div>
       <div class="scroll">
-        <svg class="dia flow" id="flow" viewBox="0 0 1200 744" role="img" aria-label="資料流動畫。左邊是使用者的瀏覽器，有宿主頁、WebChat widget、彈出視窗；右邊是後端，有行動客服後端、智生活後端與智生活會員表、WebChat 後端、Token Exchange、IdP 綁定表。選擇流程後，資料以標籤的形式在元件之間移動，圖下方的文字說明每一步。">
+        <svg class="dia flow" id="flow" viewBox="0 0 1200 744" role="img" aria-label="資料流動畫。左邊是使用者的瀏覽器，有宿主頁、WebChat widget、彈出視窗；右邊是後端，有行動客服後端、智生活後端與智生活會員表、WebChat 後端、Token Exchange、獨立的 IdP 綁定服務。選擇流程後，資料以標籤的形式在元件之間移動，圖下方的文字說明每一步。">
           <!-- 兩個區域 -->
           <rect class="zone-br" x="16" y="16" width="336" height="712" rx="14"/>
           <text class="zt c-risk" x="32" y="42">使用者的瀏覽器（外網）</text>
@@ -437,6 +437,7 @@
           <text class="wl" x="850" y="578" text-anchor="middle">S2S（API Key）</text>
           <text class="wl" x="570" y="440">S2S（API Key）</text>
           <text class="wl" x="928" y="330" text-anchor="middle">S2S</text>
+          <text class="wl" x="830" y="398">S2S</text>
 
           <!-- 瀏覽器 -->
           <g class="node" id="n-H">
@@ -493,7 +494,7 @@
           <g class="node" id="n-D">
             <rect class="nr nr-ok" x="712" y="412" width="328" height="96" rx="10"/>
             <path class="tbl-hd" d="M712,422 a10,10 0 0 1 10,-10 h308 a10,10 0 0 1 10,10 v18 h-328 z"/>
-            <text class="t on-ok" x="728" y="431" style="font-size:13px">IdP 綁定表</text>
+            <text class="t on-ok" x="728" y="431" style="font-size:13px">IdP 綁定服務（綁定表）</text>
             <line class="grid" x1="712" y1="466" x2="1040" y2="466"/>
             <line class="grid" x1="800" y1="440" x2="800" y2="508" style="opacity:.6"/>
             <line class="grid" x1="880" y1="440" x2="880" y2="508" style="opacity:.6"/>
@@ -558,15 +559,15 @@
       </div>
       <div class="card">
         <h3>登入一律在該服務自己的網域</h3>
-        <p>補綁時由 widget 用彈出視窗（<code>window.open</code>）開該服務自己的授權頁，不把登入表單包成元件嵌進平台頁面。登入後也不把 token 存在瀏覽器。</p>
+        <p>補綁時由 widget 用彈出視窗（<code>window.open</code>）開該服務自己的獨立授權頁，不把登入表單包成元件嵌進平台頁面。登入後也不把 token 存在瀏覽器。</p>
       </div>
       <div class="card">
         <h3>綁定表用 hash 關聯</h3>
-        <p>綁定表一列代表一個人，存各服務用自家 PK 算出的 hash。各服務會員表不寫入 <code>P1</code>，只新增一個 <code>H(PK)</code> 欄位並建索引：S2S 查資料時只帶 hash，服務靠這個欄位才知道是哪個會員。每個服務的 hash 在綁定表只能出現在一列。</p>
+        <p>綁定表由獨立的 IdP 綁定服務保管，一列代表一個人，存各服務用自家 PK 算出的 hash。各服務會員表不寫入 <code>P1</code>，只新增一個 <code>H(PK)</code> 欄位並建索引：S2S 查資料時只帶 hash，服務靠這個欄位才知道是哪個會員。每個服務的 hash 在綁定表只能出現在一列。</p>
       </div>
       <div class="card">
-        <h3><code>P1</code> 不離開 WebChat 後端</h3>
-        <p>WebChat 從自己的 session 就知道要綁進哪一列。該服務只回報「登入的是 <code>S1</code>」，不需要知道要綁給誰，流程裡也就沒有能竄改綁定對象的參數。</p>
+        <h3><code>P1</code> 不經過瀏覽器</h3>
+        <p><code>P1</code> 只在 WebChat 後端和 IdP 綁定服務之間以 S2S 傳遞。WebChat 從自己的 session 就知道要綁進哪一列。該服務只回報「登入的是 <code>S1</code>」，不需要知道要綁給誰，流程裡也就沒有能竄改綁定對象的參數。</p>
       </div>
     </div>
   </section>
@@ -578,15 +579,15 @@
     </div>
     <figure>
       <div class="scroll">
-        <svg class="dia" viewBox="0 0 1200 1100" role="img" aria-label="時序圖，分成瀏覽器與後端兩區。瀏覽器區有宿主頁、WebChat widget、彈出視窗；後端區有行動客服後端、智生活後端、Token Exchange 服務、WebChat 後端。開 WebChat：宿主頁向行動客服後端要求開場 code；行動客服後端以 API Key 把 I1 寄放到 Token Exchange，取得 code 後交回宿主頁；宿主頁以 postMessage 把 code 交給 widget；widget 把 code 送到 WebChat 後端；WebChat 後端以 API Key 向 Token Exchange 兌換，取得 I1，Token Exchange 兌換即刪；WebChat 後端查綁定表得到 P1，記在 session，回給 widget HttpOnly session cookie。補綁智生活：widget 通知 WebChat 後端開始綁定；WebChat 後端產生 verifier，與 P1 一起存在 session，回給 widget challenge；widget 開彈出視窗並帶 challenge；使用者在彈出視窗登入智生活並同意；智生活後端把 S1 和 challenge 寄放到 Token Exchange，取得 code 後交回彈出視窗；彈出視窗以 postMessage 把 code 交給 widget；widget 把 code 送到 WebChat 後端；WebChat 後端帶 verifier 向 Token Exchange 兌換，verifier 相符才取得 S1；WebChat 後端把 S1 寫入 P1 那一列，通知 widget 綁定完成。">
+        <svg class="dia" viewBox="0 0 1200 1224" role="img" aria-label="時序圖，分成瀏覽器與後端兩區。瀏覽器區有宿主頁、WebChat widget、彈出視窗（智生活獨立授權頁）；後端區有行動客服後端、智生活後端、Token Exchange、WebChat 後端、獨立的 IdP 綁定服務。開 WebChat：宿主頁向行動客服後端要求開場 code；行動客服後端以 API Key 把 I1 寄放到 Token Exchange，取得 code 後交回宿主頁；宿主頁以 postMessage 把 code 交給 widget；widget 把 code 送到 WebChat 後端；WebChat 後端以 API Key 向 Token Exchange 兌換，取得 I1，Token Exchange 兌換即刪；WebChat 後端以 S2S 向 IdP 綁定服務查 I1，得到 P1（查無就新建），記在 session，回給 widget HttpOnly session cookie。補綁智生活：widget 通知 WebChat 後端開始綁定；WebChat 後端產生 verifier，與 P1 一起存在 session，回給 widget challenge；widget 開彈出視窗並帶 challenge；使用者在智生活的獨立授權頁登入並同意；智生活後端把 S1 和 challenge 寄放到 Token Exchange，取得 code 後交回彈出視窗；彈出視窗以 postMessage 把 code 交給 widget；widget 把 code 送到 WebChat 後端；WebChat 後端帶 verifier 向 Token Exchange 兌換，verifier 相符才取得 S1；WebChat 後端以 S2S 請 IdP 綁定服務把 S1 寫入 P1 那一列，重複就拒絕；最後通知 widget 綁定完成。">
           <defs>
             <marker id="q-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-acc" d="M0,0 L10,5 L0,10 z"/></marker>
             <marker id="q-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path class="ah-ok" d="M0,0 L10,5 L0,10 z"/></marker>
           </defs>
 
           <!-- 兩個區域 -->
-          <rect class="zone-br" x="16" y="16" width="492" height="1068" rx="14"/>
-          <rect class="zone-be" x="524" y="16" width="660" height="1068" rx="14"/>
+          <rect class="zone-br" x="16" y="16" width="492" height="1184" rx="14"/>
+          <rect class="zone-be" x="524" y="16" width="660" height="1184" rx="14"/>
           <text class="zt c-risk" x="32" y="42">瀏覽器（外網・不可信）：只經手一次性 code</text>
           <text class="zt c-mu" x="540" y="42">後端（內網・S2S）：hash 只在這裡移動</text>
 
@@ -599,88 +600,98 @@
           <text class="s" x="262" y="101" text-anchor="middle" style="font-size:12px">iframe・WebChat 網域</text>
           <rect class="box" x="350" y="60" width="140" height="52" rx="10"/>
           <text class="t" x="420" y="83" text-anchor="middle" style="font-size:14px">彈出視窗</text>
-          <text class="s" x="420" y="101" text-anchor="middle" style="font-size:12px">智生活授權頁</text>
-          <rect class="box" x="534" y="60" width="140" height="52" rx="10"/>
-          <text class="t" x="604" y="83" text-anchor="middle" style="font-size:14px">行動客服後端</text>
-          <text class="s" x="604" y="101" text-anchor="middle" style="font-size:12px">開 WebChat 的平台</text>
-          <rect class="box" x="694" y="60" width="140" height="52" rx="10"/>
-          <text class="t" x="764" y="83" text-anchor="middle" style="font-size:14px">智生活後端</text>
-          <text class="s" x="764" y="101" text-anchor="middle" style="font-size:12px">要補綁的服務</text>
-          <rect class="box-acc" x="854" y="60" width="140" height="52" rx="10"/>
-          <text class="t" x="924" y="83" text-anchor="middle" style="font-size:14px">Token Exchange</text>
-          <text class="s" x="924" y="101" text-anchor="middle" style="font-size:12px">code 一次性・120 秒</text>
-          <rect class="box" x="1014" y="60" width="140" height="52" rx="10"/>
-          <text class="t" x="1084" y="83" text-anchor="middle" style="font-size:14px">WebChat 後端</text>
-          <text class="s" x="1084" y="101" text-anchor="middle" style="font-size:12px">保管 IdP 綁定表</text>
+          <text class="s" x="420" y="101" text-anchor="middle" style="font-size:12px">智生活獨立授權頁</text>
+          <rect class="box" x="530" y="60" width="120" height="52" rx="10"/>
+          <text class="t" x="590" y="83" text-anchor="middle" style="font-size:14px">行動客服後端</text>
+          <text class="s" x="590" y="101" text-anchor="middle" style="font-size:12px">開 WebChat 的平台</text>
+          <rect class="box" x="662" y="60" width="120" height="52" rx="10"/>
+          <text class="t" x="722" y="83" text-anchor="middle" style="font-size:14px">智生活後端</text>
+          <text class="s" x="722" y="101" text-anchor="middle" style="font-size:12px">要補綁的服務</text>
+          <rect class="box-acc" x="794" y="60" width="120" height="52" rx="10"/>
+          <text class="t" x="854" y="83" text-anchor="middle" style="font-size:14px">Token Exchange</text>
+          <text class="s" x="854" y="101" text-anchor="middle" style="font-size:12px">一次性 code</text>
+          <rect class="box" x="926" y="60" width="120" height="52" rx="10"/>
+          <text class="t" x="986" y="83" text-anchor="middle" style="font-size:14px">WebChat 後端</text>
+          <text class="s" x="986" y="101" text-anchor="middle" style="font-size:12px">保管 session</text>
+          <rect class="box-ok" x="1058" y="60" width="120" height="52" rx="10"/>
+          <text class="t" x="1118" y="83" text-anchor="middle" style="font-size:14px">IdP 綁定服務</text>
+          <text class="s" x="1118" y="101" text-anchor="middle" style="font-size:12px">獨立服務・綁定表</text>
 
-          <line class="life" x1="104" y1="112" x2="104" y2="1068"/>
-          <line class="life" x1="262" y1="112" x2="262" y2="1068"/>
-          <line class="life" x1="420" y1="112" x2="420" y2="1068"/>
-          <line class="life" x1="604" y1="112" x2="604" y2="1068"/>
-          <line class="life" x1="764" y1="112" x2="764" y2="1068"/>
-          <line class="life" x1="924" y1="112" x2="924" y2="1068"/>
-          <line class="life" x1="1084" y1="112" x2="1084" y2="1068"/>
+          <line class="life" x1="104" y1="112" x2="104" y2="1192"/>
+          <line class="life" x1="262" y1="112" x2="262" y2="1192"/>
+          <line class="life" x1="420" y1="112" x2="420" y2="1192"/>
+          <line class="life" x1="590" y1="112" x2="590" y2="1192"/>
+          <line class="life" x1="722" y1="112" x2="722" y2="1192"/>
+          <line class="life" x1="854" y1="112" x2="854" y2="1192"/>
+          <line class="life" x1="986" y1="112" x2="986" y2="1192"/>
+          <line class="life" x1="1118" y1="112" x2="1118" y2="1192"/>
 
           <!-- 開 WebChat（藍） -->
           <text class="zt c-acc halo" x="32" y="148">開 WebChat（每次都走）</text>
 
-          <line class="ln ln-acc" x1="104" y1="176" x2="602" y2="176" marker-end="url(#q-acc)"/>
-          <text class="ml c-acc" x="353" y="169" text-anchor="middle">要求開場 code（平台自己的登入狀態）</text>
-          <line class="ln ln-acc" x1="604" y1="212" x2="922" y2="212" marker-end="url(#q-acc)"/>
-          <text class="ml c-acc" x="764" y="205" text-anchor="middle">寄放 <tspan class="mono">I1</tspan>（API Key）</text>
-          <line class="ln ln-acc dash" x1="924" y1="248" x2="606" y2="248" marker-end="url(#q-acc)"/>
-          <text class="ml c-acc" x="764" y="241" text-anchor="middle">code</text>
-          <line class="ln ln-acc dash" x1="604" y1="284" x2="106" y2="284" marker-end="url(#q-acc)"/>
-          <text class="ml c-acc" x="354" y="277" text-anchor="middle">code</text>
+          <line class="ln ln-acc" x1="104" y1="176" x2="588" y2="176" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="347" y="169" text-anchor="middle">要求開場 code（平台自己的登入狀態）</text>
+          <line class="ln ln-acc" x1="590" y1="212" x2="852" y2="212" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="722" y="205" text-anchor="middle">寄放 <tspan class="mono">I1</tspan>（API Key）</text>
+          <line class="ln ln-acc dash" x1="854" y1="248" x2="592" y2="248" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="722" y="241" text-anchor="middle">code</text>
+          <line class="ln ln-acc dash" x1="590" y1="284" x2="106" y2="284" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="347" y="277" text-anchor="middle">code</text>
           <line class="ln ln-acc" x1="104" y1="320" x2="260" y2="320" marker-end="url(#q-acc)"/>
           <text class="ml c-acc" x="183" y="313" text-anchor="middle">code（postMessage）</text>
-          <line class="ln ln-acc" x1="262" y1="356" x2="1082" y2="356" marker-end="url(#q-acc)"/>
-          <text class="ml c-acc" x="673" y="349" text-anchor="middle">code</text>
-          <line class="ln ln-acc" x1="1084" y1="392" x2="926" y2="392" marker-end="url(#q-acc)"/>
-          <text class="ml c-acc" x="1004" y="385" text-anchor="middle">兌換 code（API Key）</text>
-          <line class="ln ln-acc dash" x1="924" y1="428" x2="1082" y2="428" marker-end="url(#q-acc)"/>
-          <text class="ml c-acc" x="1004" y="421" text-anchor="middle"><tspan class="mono">I1</tspan>（兌換即刪）</text>
-          <rect class="nb" x="992" y="450" width="184" height="28" rx="6"/>
-          <text class="nt" x="1084" y="469" text-anchor="middle">查綁定表得 <tspan class="mono">P1</tspan>，記在 session</text>
-          <line class="ln ln-acc dash" x1="1084" y1="500" x2="264" y2="500" marker-end="url(#q-acc)"/>
-          <text class="ml c-acc" x="673" y="493" text-anchor="middle">session cookie（HttpOnly）</text>
+          <line class="ln ln-acc" x1="262" y1="356" x2="984" y2="356" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="624" y="349" text-anchor="middle">code</text>
+          <line class="ln ln-acc" x1="986" y1="392" x2="856" y2="392" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="920" y="385" text-anchor="middle">兌換 code（API Key）</text>
+          <line class="ln ln-acc dash" x1="854" y1="428" x2="984" y2="428" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="920" y="421" text-anchor="middle"><tspan class="mono">I1</tspan>（兌換即刪）</text>
+          <line class="ln ln-acc" x1="986" y1="464" x2="1116" y2="464" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="1052" y="457" text-anchor="middle">查 <tspan class="mono">I1</tspan>（API Key）</text>
+          <line class="ln ln-acc dash" x1="1118" y1="500" x2="988" y2="500" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="1052" y="493" text-anchor="middle"><tspan class="mono">P1</tspan>（查無就新建）</text>
+          <rect class="nb" x="916" y="522" width="140" height="28" rx="6"/>
+          <text class="nt" x="986" y="541" text-anchor="middle"><tspan class="mono">P1</tspan> 記在 session</text>
+          <line class="ln ln-acc dash" x1="986" y1="572" x2="266" y2="572" marker-end="url(#q-acc)"/>
+          <text class="ml c-acc" x="625" y="565" text-anchor="middle">session cookie（HttpOnly）</text>
 
-          <line class="sep" x1="28" y1="528" x2="1172" y2="528"/>
+          <line class="sep" x1="28" y1="600" x2="1172" y2="600"/>
 
           <!-- 補綁智生活（綠） -->
-          <text class="zt c-ok halo" x="32" y="556">補綁智生活（未綁時走一次）</text>
+          <text class="zt c-ok halo" x="32" y="628">補綁智生活（未綁時走一次）</text>
 
-          <line class="ln ln-ok" x1="262" y1="584" x2="1082" y2="584" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="673" y="577" text-anchor="middle">開始綁定（使用者按「用智生活授權」）</text>
-          <rect class="nb" x="992" y="606" width="184" height="28" rx="6"/>
-          <text class="nt" x="1084" y="625" text-anchor="middle">verifier 與 <tspan class="mono">P1</tspan> 一起存 session</text>
-          <line class="ln ln-ok dash" x1="1084" y1="656" x2="264" y2="656" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="673" y="649" text-anchor="middle">challenge</text>
-          <line class="ln ln-ok" x1="262" y1="692" x2="418" y2="692" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="341" y="685" text-anchor="middle">開啟（帶 challenge）</text>
-          <line class="ln ln-ok" x1="420" y1="728" x2="762" y2="728" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="591" y="721" text-anchor="middle">使用者登入並同意</text>
-          <line class="ln ln-ok" x1="764" y1="764" x2="922" y2="764" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="844" y="757" text-anchor="middle">寄放 <tspan class="mono">S1</tspan>＋challenge</text>
-          <line class="ln ln-ok dash" x1="924" y1="800" x2="766" y2="800" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="844" y="793" text-anchor="middle">code</text>
-          <line class="ln ln-ok dash" x1="764" y1="836" x2="422" y2="836" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="592" y="829" text-anchor="middle">code</text>
-          <line class="ln ln-ok" x1="420" y1="872" x2="264" y2="872" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="341" y="865" text-anchor="middle">code（postMessage）</text>
-          <line class="ln ln-ok" x1="262" y1="908" x2="1082" y2="908" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="673" y="901" text-anchor="middle">code</text>
-          <line class="ln ln-ok" x1="1084" y1="944" x2="926" y2="944" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="1004" y="937" text-anchor="middle">兌換 code＋verifier</text>
-          <line class="ln ln-ok dash" x1="924" y1="980" x2="1082" y2="980" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="1004" y="973" text-anchor="middle"><tspan class="mono">S1</tspan>（verifier 相符才給）</text>
-          <rect class="nb" x="992" y="1002" width="184" height="28" rx="6"/>
-          <text class="nt" x="1084" y="1021" text-anchor="middle">寫入 <tspan class="mono">P1</tspan> 那一列：智生活＝<tspan class="mono">S1</tspan></text>
-          <line class="ln ln-ok dash" x1="1084" y1="1052" x2="264" y2="1052" marker-end="url(#q-ok)"/>
-          <text class="ml c-ok" x="673" y="1045" text-anchor="middle">綁定完成</text>
+          <line class="ln ln-ok" x1="262" y1="664" x2="984" y2="664" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="624" y="657" text-anchor="middle">開始綁定（使用者按「用智生活授權」）</text>
+          <rect class="nb" x="894" y="686" width="184" height="28" rx="6"/>
+          <text class="nt" x="986" y="705" text-anchor="middle">verifier 與 <tspan class="mono">P1</tspan> 一起存 session</text>
+          <line class="ln ln-ok dash" x1="986" y1="736" x2="266" y2="736" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="625" y="729" text-anchor="middle">challenge</text>
+          <line class="ln ln-ok" x1="262" y1="772" x2="418" y2="772" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="341" y="765" text-anchor="middle">開啟（帶 challenge）</text>
+          <line class="ln ln-ok" x1="420" y1="808" x2="720" y2="808" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="571" y="801" text-anchor="middle">使用者登入並同意</text>
+          <line class="ln ln-ok" x1="722" y1="844" x2="852" y2="844" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="788" y="837" text-anchor="middle">寄放 <tspan class="mono">S1</tspan>＋challenge</text>
+          <line class="ln ln-ok dash" x1="854" y1="880" x2="724" y2="880" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="788" y="873" text-anchor="middle">code</text>
+          <line class="ln ln-ok dash" x1="722" y1="916" x2="422" y2="916" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="571" y="909" text-anchor="middle">code</text>
+          <line class="ln ln-ok" x1="420" y1="952" x2="264" y2="952" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="341" y="945" text-anchor="middle">code（postMessage）</text>
+          <line class="ln ln-ok" x1="262" y1="988" x2="984" y2="988" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="624" y="981" text-anchor="middle">code</text>
+          <line class="ln ln-ok" x1="986" y1="1024" x2="856" y2="1024" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="920" y="1017" text-anchor="middle">兌換 code＋verifier</text>
+          <line class="ln ln-ok dash" x1="854" y1="1060" x2="984" y2="1060" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="920" y="1053" text-anchor="middle"><tspan class="mono">S1</tspan>（verifier 相符才給）</text>
+          <line class="ln ln-ok" x1="986" y1="1096" x2="1116" y2="1096" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="1052" y="1089" text-anchor="middle">寫入 <tspan class="mono">P1</tspan>：智生活＝<tspan class="mono">S1</tspan></text>
+          <line class="ln ln-ok dash" x1="1118" y1="1132" x2="988" y2="1132" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="1052" y="1125" text-anchor="middle">完成（重複就拒絕）</text>
+          <line class="ln ln-ok dash" x1="986" y1="1168" x2="266" y2="1168" marker-end="url(#q-ok)"/>
+          <text class="ml c-ok" x="625" y="1161" text-anchor="middle">綁定完成</text>
         </svg>
       </div>
-      <figcaption>紅色虛線框是瀏覽器（外網），經手的只有一次性 code、challenge 和 WebChat 的 session cookie；<code>I1</code>、<code>S1</code> 與 verifier 只在右邊的後端之間以 S2S 移動。開場和補綁共用同一個 Token Exchange 服務：確認登入的一方寄放 hash，WebChat 後端兌換。<code>S1</code> 和 <code>I1</code> 是透過 <code>P1</code> 對上的：開場時查到的 <code>P1</code> 記在 WebChat 後端的 session，補綁開始時 verifier 和 <code>P1</code> 一起存；兌換時 verifier 要和寄放時的 challenge 相符，<code>S1</code> 才會交出來並寫進那個 <code>P1</code> 列。code 拿到別的 session 就換不動。</figcaption>
+      <figcaption>紅色虛線框是瀏覽器（外網），經手的只有一次性 code、challenge 和 WebChat 的 session cookie；<code>I1</code>、<code>S1</code> 與 verifier 只在右邊的後端之間以 S2S 移動。開場和補綁共用同一個 Token Exchange 服務：確認登入的一方寄放 hash，WebChat 後端兌換後，再以 S2S 向獨立的 IdP 綁定服務查詢或寫入。<code>S1</code> 和 <code>I1</code> 是透過 <code>P1</code> 對上的：開場時查到的 <code>P1</code> 記在 WebChat 後端的 session，補綁開始時 verifier 和 <code>P1</code> 一起存；兌換時 verifier 要和寄放時的 challenge 相符，<code>S1</code> 才會交出來，再請 IdP 綁定服務寫進那個 <code>P1</code> 列。code 拿到別的 session 就換不動。</figcaption>
     </figure>
   </section>
 
@@ -728,7 +739,7 @@
   <section id="popup">
     <div class="sec-hd">
       <h2><span class="num">05</span>補綁的登入：彈出視窗開該服務網域，不包成元件</h2>
-      <p>「用智生活授權」按鈕放在 WebChat widget 裡，由 widget 用 <code>window.open</code> 開出獨立的瀏覽器視窗，不是頁面內的 modal；手機瀏覽器會開成新分頁，一樣能把結果傳回 widget。各平台不需要嵌入其他服務的登入元件，也不需要在自己的網站掛其他服務的登入頁。</p>
+      <p>「用智生活授權」按鈕放在 WebChat widget 裡，由 widget 用 <code>window.open</code> 開出獨立的瀏覽器視窗，不是頁面內的 modal；手機瀏覽器會開成新分頁，一樣能把結果傳回 widget。授權頁是各服務在自家網域提供的獨立頁面。各平台不需要嵌入其他服務的登入元件，也不需要在自己的網站掛其他服務的登入頁。</p>
     </div>
     <div class="cards">
       <div class="card">
@@ -763,8 +774,8 @@
           <tr><td>冒用別人的 code</td><td>攻擊者拿到別人的綁定 code，在自己的 WebChat 兌換；別人的 <code>S1</code> 被寫進攻擊者那一列，攻擊者就能透過 WebChat 讀別人的智生活資料。</td><td>兌換時要出示 verifier，verifier 只存在發起綁定的那個 WebChat session；換到別的 session 就對不上 challenge。</td></tr>
           <tr><td>塞入自己的 code</td><td>攻擊者把自己的 code 塞進受害者的 widget，攻擊者的 <code>S1</code> 被寫進受害者那一列；之後攻擊者從智生活開 WebChat，會查到受害者那一列，讀到受害者在行動客服的資料。</td><td>widget 只收自己開的彈出視窗、從該服務網域送來的訊息；就算塞進來，受害者 session 的 verifier 也對不上攻擊者的 challenge。</td></tr>
           <tr><td>轉寄授權頁連結</td><td>攻擊者用自己的 challenge 做出授權頁連結，傳給受害者登入；code 若交回攻擊者，受害者的 <code>S1</code> 就會寫進攻擊者那一列。</td><td>授權頁只用 postMessage 把 code 交給開它的視窗，targetOrigin 固定為 WebChat 網域；code 不放進 URL；沒有開啟它的視窗就不寄放。</td></tr>
-          <tr><td>竄改要綁的對象</td><td>如果網址帶著 <code>P1</code> 或 <code>I1</code>，改掉就能綁到別人身上。</td><td><code>P1</code> 不離開 WebChat 後端，從 session 取得，沒有參數可以改。</td></tr>
-          <tr><td>同一個 hash 綁進兩列</td><td>同一個智生活帳號同時對應兩個人。</td><td>綁定表每個服務欄位設唯一；衝突時拒絕綁定，不自動合併。</td></tr>
+          <tr><td>竄改要綁的對象</td><td>如果網址帶著 <code>P1</code> 或 <code>I1</code>，改掉就能綁到別人身上。</td><td><code>P1</code> 從 WebChat 的 session 取得，只在後端之間傳遞，沒有參數可以改。</td></tr>
+          <tr><td>同一個 hash 綁進兩列</td><td>同一個智生活帳號同時對應兩個人。</td><td>IdP 綁定服務對每個服務欄位設唯一；衝突時拒絕綁定，不自動合併。</td></tr>
         </tbody>
       </table>
     </div>
@@ -792,6 +803,7 @@
     <ul class="list">
       <li><strong>Token Exchange 服務改寄放會員 hash：</strong>不再寄放平台 token，「內網 S2S 簡化版」的存入／兌換合約要跟著改，並加上 challenge 欄位。</li>
       <li><strong>⑨ 各服務 API 信任 WebChat 帶來的 hash：</strong>WebChat 的 API Key 等於能查任何人的資料，權限範圍與稽核要另外確認。</li>
+      <li><strong>IdP 綁定服務的介面與權限：</strong>只開放 WebChat 後端以 API Key 呼叫查詢與寫入，寫入要留稽核紀錄。</li>
       <li><strong>widget 的 session cookie：</strong>widget 是嵌在別人網站裡的 iframe，它的 cookie 屬於第三方 cookie，Safari 預設會擋，開場和補綁都受影響；要確認做法，例如 Partitioned cookie，或把 session token 放在 widget 記憶體。</li>
       <li><strong>hash 演算法：</strong>必須固定不變，PK 或演算法一改，綁定就斷。PK 若是流水號，單純 SHA-256 一旦外流就能被窮舉回推，建議各服務用自己的密鑰做 HMAC。</li>
       <li><strong>各服務新增 H(PK) 欄位：</strong>建唯一索引；既有會員要批次回填，新會員建立時一併寫入。</li>
@@ -811,7 +823,7 @@
   var NS = 'http://www.w3.org/2000/svg';
   var reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
   var pkt = $('pkt');
-  var NAME = { H: '宿主頁', G: 'WebChat widget', P: '彈出視窗', A: '行動客服後端', B: '智生活後端', W: 'WebChat 後端', T: 'Token Exchange', D: 'IdP 綁定表', M: '智生活會員表' };
+  var NAME = { H: '宿主頁', G: 'WebChat widget', P: '彈出視窗', A: '行動客服後端', B: '智生活後端', W: 'WebChat 後端', T: 'Token Exchange', D: 'IdP 綁定服務', M: '智生活會員表' };
   var ORDER = ['login', 'open', 'bind', 'query'];
 
   function base() {
@@ -859,11 +871,11 @@
         { a: 'T', b: 'W', c: [['I1', 'hash']], t: '交回 I1，code 作廢',
           d: 'Token Exchange 交回 I1，並立刻刪掉這筆暫存。同一張 code 再拿來兌換一定失敗，還會觸發告警。',
           fx: function (s) { s.T = '暫存：無'; } },
-        { a: 'W', b: 'D', c: [['I1', 'hash']], t: '④ 用 I1 查綁定表',
-          d: '用 I1 查 IdP 綁定表的行動客服欄，找到這個人那一列 P1；查不到就新建一列，寫入 I1。',
+        { a: 'W', b: 'D', c: [['I1', 'hash']], t: '④ 向 IdP 綁定服務查 I1',
+          d: 'WebChat 後端以 S2S 帶 API Key 呼叫獨立的 IdP 綁定服務，用 I1 查行動客服欄，找到這個人那一列 P1；查不到就新建一列，寫入 I1。',
           fx: function (s) { s.p = 'P1'; s.i = 'I1'; } },
         { a: 'D', b: 'W', c: [['P1', 'hash']], t: 'P1 記在 session',
-          d: 'WebChat 後端把 P1 記在自己的 session。P1 只在 WebChat 後端使用，不會送到瀏覽器。',
+          d: 'IdP 綁定服務回傳 P1，WebChat 後端把它記在自己的 session。P1 只在後端之間傳遞，不會送到瀏覽器。',
           fx: function (s) { s.W = 'session：P1'; } },
         { a: 'W', b: 'G', c: [['session cookie', 'cookie']], t: '回給 widget 一個 cookie',
           d: 'widget 只拿到一個 HttpOnly session cookie。整個開場過程，瀏覽器沒看過 token、I1 或 P1。',
@@ -884,7 +896,7 @@
         { a: 'W', b: 'G', c: [['challenge', 'code']], t: '只交出 challenge',
           d: '後端只把 challenge（verifier 的 SHA-256）交給 widget。challenge 被看到也沒關係，無法從它反推出 verifier。' },
         { a: 'G', b: 'P', c: [['challenge', 'code']], t: '導到智生活授權頁',
-          d: 'widget 把彈出視窗導到智生活自己網域的授權頁，網址帶上 challenge。使用者看得到網址列，可以確認是真的智生活。',
+          d: 'widget 把彈出視窗導到智生活的獨立授權頁（智生活網域），網址帶上 challenge。使用者看得到網址列，可以確認是真的智生活。',
           fx: function (s) { s.P = '智生活授權頁'; } },
         { a: 'P', b: 'B', c: [['帳密', 'cred']], t: '⑥ 在智生活登入並同意',
           d: '使用者在智生活的授權頁登入並同意授權。帳密只輸入在智生活的網域，行動客服和 WebChat 都碰不到。',
@@ -906,8 +918,8 @@
         { a: 'T', b: 'W', c: [['S1', 'hash']], t: 'verifier 相符才交出 S1',
           d: 'Token Exchange 檢查 SHA-256(verifier) 是否等於寄放時的 challenge，相符才交回 S1，並刪掉這筆暫存。code 就算被別的 session 拿去兌換，verifier 也對不上。',
           fx: function (s) { s.T = '暫存：無'; } },
-        { a: 'W', b: 'D', c: [['S1', 'hash']], t: '寫進 P1 那一列',
-          d: '把 S1 寫進 session 記下的 P1 那一列的智生活欄。I1 和 S1 就這樣透過 P1 對上；S1 若已在別列，就拒絕綁定。',
+        { a: 'W', b: 'D', c: [['P1', 'hash'], ['S1', 'hash']], t: '請 IdP 綁定服務寫入',
+          d: 'WebChat 後端以 S2S 請 IdP 綁定服務，把 S1 寫進 session 記下的 P1 那一列的智生活欄。I1 和 S1 就這樣透過 P1 對上；S1 若已在別列，綁定服務會拒絕。',
           fx: function (s) { s.s = 'S1'; s.W = 'session：P1'; } },
         { a: 'W', b: 'G', c: [['綁定完成', 'data']], t: '通知 widget',
           d: 'widget 收到綁定完成，接著就能查智生活的資料。整個過程中，瀏覽器經手的只有 challenge 和 code。',
@@ -921,10 +933,10 @@
       steps: [
         { a: 'G', b: 'W', c: [['問題', 'req']], t: '使用者提問',
           d: '使用者在 WebChat 問「我的智生活帳單」。請求只帶 session cookie，不帶任何 hash 或 token。' },
-        { a: 'W', b: 'D', c: [['P1', 'hash']], t: '用 P1 查綁定表',
-          d: 'WebChat 後端從 session 拿出 P1，查綁定表這一列的智生活欄。' },
+        { a: 'W', b: 'D', c: [['P1', 'hash']], t: '向 IdP 綁定服務查 P1',
+          d: 'WebChat 後端從 session 拿出 P1，以 S2S 向 IdP 綁定服務查這一列的智生活欄。' },
         { a: 'D', b: 'W', c: [['S1', 'hash']], t: '取得 S1',
-          d: '取得這個人在智生活的 H(PK)，也就是 S1。' },
+          d: 'IdP 綁定服務回傳這個人在智生活的 H(PK)，也就是 S1。' },
         { a: 'W', b: 'B', c: [['S1', 'hash']], t: '⑨ S2S 帶 H(PK) 呼叫智生活 API',
           d: 'WebChat 後端帶自己的 API Key，以 S2S 呼叫智生活 API，參數是 S1。API Key 證明呼叫方是 WebChat，S1 指出要查哪個會員。',
           fx: function (s) { s.B = 'API Key 驗證通過'; } },
